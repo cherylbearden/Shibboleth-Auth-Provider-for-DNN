@@ -1,0 +1,7 @@
+C:\VS_Codebase\DotNetNuke_Professional_05.05.01_Source\Website\DesktopModules\bin\UF.Research.Authentication.Shibboleth.dll
+C:\VS_Codebase\DotNetNuke_Professional_05.05.01_Source\Website\DesktopModules\bin\UF.Research.Authentication.Shibboleth.pdb
+C:\VS_Codebase\DotNetNuke_Professional_05.05.01_Source\Website\DesktopModules\bin\UF.Research.Authentication.Shibboleth.xml
+C:\VS_Codebase\DotNetNuke_Professional_05.05.01_Source\Website\DesktopModules\AuthenticationServices\Shibboleth\obj\Debug\UF.Research.Authentication.Shibboleth.dll
+C:\VS_Codebase\DotNetNuke_Professional_05.05.01_Source\Website\DesktopModules\AuthenticationServices\Shibboleth\obj\Debug\UF.Research.Authentication.Shibboleth.xml
+C:\VS_Codebase\DotNetNuke_Professional_05.05.01_Source\Website\DesktopModules\AuthenticationServices\Shibboleth\obj\Debug\UF.Research.Authentication.Shibboleth.pdb
+C:\VS_Codebase\DotNetNuke_Professional_05.05.01_Source\Website\DesktopModules\AuthenticationServices\Shibboleth\obj\Debug\ResolveAssemblyReference.cache
