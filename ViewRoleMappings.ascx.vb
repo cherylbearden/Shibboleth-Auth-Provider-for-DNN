@@ -1,5 +1,5 @@
 ﻿'
-' UF Deptartment of Research
+' UF Office of Research
 ' Copyright (c) 2010
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -71,7 +71,7 @@ Imports DotNetNuke.Entities.Modules.Actions
 ''' 
 Namespace UF.Research.Authentication.Shibboleth
     Partial Class ViewRoleMappings
-        Inherits PortalModuleBase
+        Inherits DotNetNuke.Entities.Modules.PortalModuleBase
         Implements IActionable
 
         ''' ----------------------------------------------------------------------------- 

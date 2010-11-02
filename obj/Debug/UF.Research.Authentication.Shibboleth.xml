@@ -474,7 +474,7 @@ lnkSettings control.
 Auto-generated field.
 To modify move field declaration from designer file to code-behind file.
 </remarks>
-</member><member name="T:UF.Research.Shibboleth.Authentication.RoleMappings">
+</member><member name="T:UF.Research.Authentication.Shibboleth.RoleMappings">
 	<summary>
  Represents the collection of RoleMappings for a portal
  </summary>

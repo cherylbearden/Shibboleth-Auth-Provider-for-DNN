@@ -1,6 +1,6 @@
 ﻿
 '
-' UF Deptartment of Research
+' UF Office of Research
 ' Copyright (c) 2010
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -19,9 +19,11 @@
 Imports System.Collections.Generic
 Imports System.Runtime.Serialization
 
-Namespace UF.Research.Shibboleth.Authentication
+'Namespace UF.Research.Shibboleth.Authentication
+Namespace UF.Research.Authentication.Shibboleth
 
-Public Class RoleMappingElement
+
+    Public Class RoleMappingElement
 
 #Region "Private Members"
 
