@@ -223,8 +223,10 @@ Namespace UF.Research.Authentication.Shibboleth
                             'cb 1029
                             'objShibUser.Membership.Password = RandomizePassword(objUser, strPassword)
                             objShibUser.Membership.UpdatePassword = True
-                        Else 'user exists in another portal, then create
-                            'objShibUser.Membership.Password = RandomizePassword(objUser, strPassword)
+                        Else 'user exists in another portal, then create userportals record.You must set  
+                            'the password to be that of the current DNN user password in order for CreateUser to work.  
+                            'Otherwise, CreateUser will see that the user exists, but with a different password,
+                            'and the loginStatus will not be successful.
                             objShibUser.UserID = objUser.UserID
                             objShibUser.Membership.Password = DNNUserController.GetPassword(objUser, strPassword)
                             CreateUser(CType(objShibUser, DotNetNuke.Entities.Users.UserInfo), loginStatus)
