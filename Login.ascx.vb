@@ -1,5 +1,5 @@
 ﻿'
-' UF Deptartment of Research
+' UF Office of Research
 ' Copyright (c) 2010
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -50,7 +50,7 @@ Imports UF.Research.Authentication.Shibboleth
 Namespace UF.Research.Authentication.Shibboleth
 
     Partial Public Class Login
-        Inherits AuthenticationLoginBase
+        Inherits DotNetNuke.Services.Authentication.AuthenticationLoginBase
         'Inherits System.Web.UI.UserControl
 
 #Region "Protected Properties"

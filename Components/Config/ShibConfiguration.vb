@@ -1,6 +1,6 @@
 '
 '
-' UF Deptartment of Research
+' UF Office of Research
 ' Copyright (c) 2010
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -133,8 +133,8 @@ Namespace UF.Research.Authentication.Shibboleth
                         'ksLoginPage not yet in portal settings, do nothing
                     End Try
 
-                    Dim rmElement As UF.Research.Shibboleth.Authentication.RoleMappingElement _
-                      = New UF.Research.Shibboleth.Authentication.RoleMappingElement()
+                    Dim rmElement As UF.Research.Authentication.Shibboleth.RoleMappingElement _
+                      = New UF.Research.Authentication.Shibboleth.RoleMappingElement()
 
                     Dim roleMappings As RoleMappings = New RoleMappings()
 

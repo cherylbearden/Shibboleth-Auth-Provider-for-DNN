@@ -1,6 +1,6 @@
 ﻿
 '
-' UF Deptartment of Research
+' UF Office of Research
 ' Copyright (c) 2010
 '
 ' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
@@ -20,7 +20,7 @@ Imports System.Collections.Generic
 Imports System.Runtime.Serialization
 Imports DotNetNuke.Entities.Portals
 
-Namespace UF.Research.Shibboleth.Authentication
+Namespace UF.Research.Authentication.Shibboleth
 
     ''' <summary>
     ''' Represents the collection of RoleMappings for a portal
@@ -28,7 +28,7 @@ Namespace UF.Research.Shibboleth.Authentication
     ''' <remarks></remarks>
     <Serializable()> _
     Public Class RoleMappings
-        Inherits Dictionary(Of String, RoleMappingElement)
+        Inherits System.Collections.Generic.Dictionary(Of String, RoleMappingElement)
 
 #Region "Private Members"
 
