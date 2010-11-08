@@ -132,5 +132,10 @@
   <data name="plUsername.Text" xml:space="preserve">
     <value>Demo User Name</value>
   </data>
-
+  <data name="lblShibEnabled.Text" xml:space="preserve">
+    <value>Shibboleth Logon</value>
+  </data>
+  <data name="lblShibNotEnabled.Text" xml:space="preserve">
+    <value>Shib Not Enabled</value>
+  </data>
 </root>

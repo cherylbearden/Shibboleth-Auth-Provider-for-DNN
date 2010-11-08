@@ -22,19 +22,19 @@
                 <telerik:GridEditCommandColumn UniqueName="EditCommandColumn"  ItemStyle-Width="30px"></telerik:GridEditCommandColumn>
                 <telerik:GridButtonColumn UniqueName="DeleteColumn" Text="Delete" CommandName="Delete" ItemStyle-Width="30px"/>
 
-                <telerik:GridBoundColumn UniqueName="RMID" HeaderText="RMID" DataField="RMID">
+                <telerik:GridBoundColumn UniqueName="RMID"  DataField="RMID">
                     <HeaderStyle Width="20px"></HeaderStyle>
                 </telerik:GridBoundColumn>
                             
-                <telerik:GridBoundColumn UniqueName="DNNRoleName" HeaderText="DNN Role Name" DataField="DNNRoleName">
+                <telerik:GridBoundColumn UniqueName="DNNRoleName"  DataField="DNNRoleName">
                     <HeaderStyle Width="20px"></HeaderStyle>
                 </telerik:GridBoundColumn>
 
-                <telerik:GridBoundColumn UniqueName="SHIBRoleType" HeaderText="SHIB Role Type" DataField="SHIBRoleType">
+                <telerik:GridBoundColumn UniqueName="SHIBRoleType"  DataField="SHIBRoleType">
                     <HeaderStyle Width="20px"></HeaderStyle>
                 </telerik:GridBoundColumn> 
 
-                <telerik:GridBoundColumn UniqueName="SHIBRoleName" HeaderText="SHIB Role Name" DataField="SHIBRoleName">
+                <telerik:GridBoundColumn UniqueName="SHIBRoleName"  DataField="SHIBRoleName" >
                     <HeaderStyle Width="20px"></HeaderStyle>
                 </telerik:GridBoundColumn>        
                                        
@@ -64,4 +64,3 @@
 <br />
 <br />
 
-<asp:LinkButton ID="lnkSettings" runat="server" style="font-weight:bold">Shibboleth Settings</asp:LinkButton>
