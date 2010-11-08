@@ -45,11 +45,18 @@ Imports System.Configuration
 Imports System.Data
 Imports System.Data.SqlClient
 
+Imports System.Data.Sql
+Imports System.Globalization
+Imports DotNetNuke.Common.Utilities
+Imports DotNetNuke.Entities.Modules.Actions
+
 
 Namespace UF.Research.Authentication.Shibboleth
 
     Partial Public Class rmDetail
-        Inherits System.Web.UI.UserControl
+        'Inherits System.Web.UI.UserControl
+        Inherits DotNetNuke.Entities.Modules.PortalModuleBase
+
 
         Private _dataItem As Object = Nothing
 
@@ -71,8 +78,9 @@ Namespace UF.Research.Authentication.Shibboleth
         'End Sub
 
         Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs)
-            Dim i As Integer
-            i = 1
+
+
+
         End Sub
 
 
@@ -166,11 +174,21 @@ Namespace UF.Research.Authentication.Shibboleth
 
         End Sub
 
+        Private Sub Page_Init(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Init
+            Me.btnCancel.Text = Localization.GetString("btnCancel", LocalResourceFile)
+            Me.btnInsert.Text = Localization.GetString("btnInsert", LocalResourceFile)
+            Me.btnUpdate.Text = Localization.GetString("btnUpdate.Header", LocalResourceFile)
+        End Sub
+
         Private Sub Page_PreRender(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.PreRender
 
             If Me.txtDNNRoleName.Text <> "" Then
                 Me.ddlDNNRoles.Items.FindByText(Me.txtDNNRoleName.Text).Selected = True
             End If
+
+            Me.btnCancel.Text = Localization.GetString("btnCancel", LocalResourceFile)
+            Me.btnInsert.Text = Localization.GetString("btnInsert", LocalResourceFile)
+            Me.btnUpdate.Text = Localization.GetString("btnUpdate.Header", LocalResourceFile)
 
         End Sub
 

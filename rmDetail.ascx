@@ -97,7 +97,7 @@
                    
                     </td>
                     <td>
-                        <asp:button id="btnUpdate" text="Update" runat="server" CommandName="Update" Visible='<%# Not (TypeOf DataItem Is Telerik.Web.UI.GridInsertionObject) %>'></asp:button>
+                        <asp:button id="btnUpdate" text="Update"  runat="server" CommandName="Update" Visible='<%# Not (TypeOf DataItem Is Telerik.Web.UI.GridInsertionObject) %>'></asp:button>
                    
                         <asp:button id="btnInsert" text="Insert" runat="server" CommandName="PerformInsert" Visible='<%# (TypeOf DataItem Is Telerik.Web.UI.GridInsertionObject) %>'></asp:button>&nbsp;
                   

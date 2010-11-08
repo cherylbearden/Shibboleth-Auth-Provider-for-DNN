@@ -47,6 +47,7 @@ Imports Telerik.Web
 Imports System.Globalization
 Imports DotNetNuke.Common.Utilities
 Imports DotNetNuke.Entities.Modules.Actions
+
 '
 ' UF.Resarch 
 ' Copyright (c) 2010 UF Research
@@ -84,6 +85,8 @@ Namespace UF.Research.Authentication.Shibboleth
             AddHandler Load, AddressOf Page_Load
         End Sub
 
+
+
         Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
             Try
 
@@ -104,11 +107,15 @@ Namespace UF.Research.Authentication.Shibboleth
 
                 ' Obtain PortalSettings from controller
                 Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+                btnUpdateRoleMappings.Text = Localization.GetString("btnUpdateRoleMappings.Text", LocalResourceFile)
 
             Catch exc As ModuleLoadException
                 'Module failed to load 
                 Exceptions.ProcessModuleLoadException(Me, exc)
             End Try
+
+
+
         End Sub
 
 
@@ -273,6 +280,7 @@ Namespace UF.Research.Authentication.Shibboleth
             Return rmDataTable
 
         End Function
+
 
         Private Sub RadGrid1_NeedDataSource(ByVal source As Object, ByVal e As Telerik.Web.UI.GridNeedDataSourceEventArgs) Handles RadGrid1.NeedDataSource
             'GetRMTable()
@@ -477,10 +485,37 @@ Namespace UF.Research.Authentication.Shibboleth
 
         End Sub
 
-
-        Private Sub lnkSettings_Command(ByVal sender As Object, ByVal e As System.Web.UI.WebControls.CommandEventArgs) Handles lnkSettings.Command
+        Private Sub Page_Init(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Init
 
         End Sub
+        'add localization for radgrid headers
+        Private Sub RadGrid1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles RadGrid1.Load
+
+            RadGrid1.Culture = System.Threading.Thread.CurrentThread.CurrentCulture
+
+            Dim strHeaderTextName As String
+
+            For Each bc As GridColumn In RadGrid1.MasterTableView.Columns
+                If bc.ColumnType = "GridButtonColumn" Then
+                    Dim bcCol As GridButtonColumn = bc
+                    strHeaderTextName = bc.UniqueName & ".Header"
+                    bcCol.HeaderText = Localization.GetString(strHeaderTextName, LocalResourceFile)
+                End If
+                If bc.ColumnType = "GridEditCommandColumn" Then
+                    Dim bcCol As GridEditCommandColumn = bc
+                    strHeaderTextName = bc.UniqueName & ".Header"
+                    bcCol.HeaderText = Localization.GetString(strHeaderTextName, LocalResourceFile)
+                End If
+
+                If bc.ColumnType = "GridBoundColumn" Then
+                    Dim bcCol As GridBoundColumn = bc
+                    strHeaderTextName = bcCol.DataField & ".Header"
+                    bcCol.HeaderText = Localization.GetString(strHeaderTextName, LocalResourceFile)
+                End If
+            Next
+
+        End Sub
+
 
     End Class
 

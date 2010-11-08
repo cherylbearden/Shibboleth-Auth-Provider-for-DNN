@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,37 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AuthenticationConfig_Enabled.Help" xml:space="preserve">
-    <value>Check this box to enable the standard DotNetNuke Authentication</value>
+  <data name="btnCancel.Text" xml:space="preserve">
+    <value>Cancel</value>
   </data>
-  <data name="AuthenticationConfig_Enabled.Text" xml:space="preserve">
-    <value>Enabled?</value>
+  <data name="btnInsert.Text" xml:space="preserve">
+    <value>Insert</value>
   </data>
-  <data name="AuthenticationConfig_UseCaptcha.Help" xml:space="preserve">
-    <value>Check this box to enable Captcha for the DotNetNuke Login</value>
-  </data>
-  <data name="AuthenticationConfig_UseCaptcha.Text" xml:space="preserve">
-    <value>Use Captcha?</value>
-  </data>
-  <data name="plAutoCreateUsers.Text" xml:space="preserve">
-    <value>AutoCreate Users?</value>
-  </data>
-  <data name="plDelimiter.Text" xml:space="preserve">
-    <value>Delimiter:</value>
-  </data>
-  <data name="plEnabled.Text" xml:space="preserve">
-    <value>Shibboleth Enabled?</value>
-  </data>
-  <data name="plLoginPage.Text" xml:space="preserve">
-    <value>Login Page:</value>
-  </data>
-  <data name="plLogoutPage.Text" xml:space="preserve">
-    <value>Logout Page:</value>
-  </data>
-  <data name="plSynchronizeRoles.Text" xml:space="preserve">
-    <value>Synchronize Roles?</value>
-  </data>
-  <data name="Title.Text" xml:space="preserve">
-    <value>DotNetNuke Authentication Settings</value>
+  <data name="btnUpdate.Header" xml:space="preserve">
+    <value>Update</value>
   </data>
 </root>
