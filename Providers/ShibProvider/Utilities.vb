@@ -18,34 +18,13 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 
-Imports System.Text.RegularExpressions
-Imports System.Security.Principal
 
-Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Services.Exceptions
-Imports System.Net
 
 Imports System.Web
-Imports System.Web.Services
 
-Imports System.Collections.Specialized
-Imports System.Web.Security
 
-Imports DotNetNuke.Common
-Imports DotNetNuke.Common.Utilities
-Imports DotNetNuke.Entities.Modules
-Imports DNNUserController = DotNetNuke.Entities.Users.UserController
-Imports DNNUserInfo = DotNetNuke.Entities.Users.UserInfo
 
-Imports DotNetNuke.Security.Membership
-Imports DotNetNuke.Services.Authentication
-Imports DotNetNuke.Services.Localization
-Imports DotNetNuke.UI.Skins.Controls.ModuleMessage
-Imports DotNetNuke.UI.WebControls
-Imports DotNetNuke.Security
-Imports System.Data
-Imports DotNetNuke.Entities.Profile
-Imports DotNetNuke.Entities.Users
 
 Namespace UF.Research.Authentication.Shibboleth.SHIB
 
