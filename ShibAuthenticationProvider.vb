@@ -19,6 +19,7 @@
 '
 
 Imports DotNetNuke.Entities.Portals
+Imports System.Collections
 
 Namespace UF.Research.Authentication.Shibboleth
 
@@ -37,7 +38,7 @@ Namespace UF.Research.Authentication.Shibboleth
             If _portalSettings IsNot Nothing Then
                 strKey = "ShibAuthenticationProvider" & _portalSettings.PortalId.ToString
             End If
-            objProvider = CType(Framework.Reflection.CreateObject(_config.ProviderTypeName, strKey), ShibAuthenticationProvider)
+            objProvider = CType(DotNetNuke.Framework.Reflection.CreateObject(_config.ProviderTypeName, strKey), ShibAuthenticationProvider)
 
         End Sub
 
@@ -48,7 +49,7 @@ Namespace UF.Research.Authentication.Shibboleth
             If _portalSettings IsNot Nothing Then
                 strKey = "ShibAuthenticationProvider" & _portalSettings.PortalId.ToString
             End If
-            objProvider = CType(Framework.Reflection.CreateObject(AuthenticationTypeName, strKey), ShibAuthenticationProvider)
+            objProvider = CType(DotNetNuke.Framework.Reflection.CreateObject(AuthenticationTypeName, strKey), ShibAuthenticationProvider)
             Return objProvider
         End Function
 
@@ -58,7 +59,9 @@ Namespace UF.Research.Authentication.Shibboleth
 
         Public MustOverride Overloads Function GetUser(ByVal LoggedOnUserName As String) As ShibUserInfo
 
-        Public MustOverride Function GetGroups(ByVal strRG As String) As ArrayList
+        Public MustOverride Function GetGroups(ByVal oRoleGroup As Object) As ArrayList
+
+        Public MustOverride Function GetAllGroups(ByVal oRoleGroup As Object) As ArrayList
 
 #End Region
 

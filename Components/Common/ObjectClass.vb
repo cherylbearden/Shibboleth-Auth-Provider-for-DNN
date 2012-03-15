@@ -17,12 +17,6 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 
-Imports DotNetNuke.Common.Utilities
-Imports DotNetNuke.Entities.Modules
-Imports DotNetNuke.Entities.Portals
-Imports DotNetNuke.Framework.Providers
-Imports DotNetNuke.Security
-
 Namespace UF.Research.Authentication.Shibboleth
 
 

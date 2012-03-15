@@ -33,10 +33,7 @@
                     <td valign="top"><asp:CheckBox ID="chkSynchronizeRoles" runat="server" CssClass="NormalTextBox"></asp:CheckBox></td>
                     <td></td>
                 </tr>
-                <tr>
-                    <td width="200"><dnn:label id="plDelimiter" runat="server" controlname="txtDelimiter" text="Delimiter" /></td>
-                    <td valign="top"><asp:Textbox  ID="txtDelimiter" runat="server" CssClass="NormalTextBox" Width="10" BorderStyle="Double"></asp:TextBox></td>
-                </tr>
+                
                 <tr>
                     <td width="200"><dnn:label id="plLogoutPage" runat="server" controlname="txtLogoutPage" text="Logout Page" /></td>
                     <td width="200"><asp:DropDownList ID="ddlLogoutPage" runat="server"></asp:DropDownList></td>
@@ -48,6 +45,20 @@
                     <td width="300"><asp:Label ID="lblLoginPageError" runat="server" Text="" BackColor="Red" Visible="false"></asp:Label></td>
                 </tr>
 
+                <tr>
+                    <td width="200"><dnn:label id="plSimulateLogin" runat="server" controlname="txtSimulateLogin" text="Simulate Login" /></td>
+                    <td width="200">
+                        <asp:CheckBox ID="chkSimulateLogin" runat="server" />
+                    </td>
+                    <td>
+                    <asp:TextBox ID="txtSimLoginTextFile" runat="server" Visible="false" ></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="200"><dnn:label id="plDelimiter" runat="server" controlname="txtDelimiter" text="Delimiter" Enabled="false" visible="false" /></td>
+                    <td valign="top"><asp:Textbox  ID="txtDelimiter" runat="server" CssClass="NormalTextBox" Width="10" BorderStyle="Double" Enabled="false" visible="false"  ></asp:TextBox></td>
+                </tr>
+                
             </table>
         </td>
     </tr>

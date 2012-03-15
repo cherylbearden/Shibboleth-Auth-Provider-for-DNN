@@ -54,7 +54,6 @@ Imports DotNetNuke.Entities.Modules.Actions
 Namespace UF.Research.Authentication.Shibboleth
 
     Partial Public Class rmDetail
-        'Inherits System.Web.UI.UserControl
         Inherits DotNetNuke.Entities.Modules.PortalModuleBase
 
 
@@ -64,7 +63,6 @@ Namespace UF.Research.Authentication.Shibboleth
 
         Public Property RMID() As String
             Get
-                'Return _Key
                 Return labelRMID.Text
             End Get
             Set(ByVal value As String)
@@ -72,14 +70,7 @@ Namespace UF.Research.Authentication.Shibboleth
             End Set
         End Property
 
-        'Public Overloads Sub RaisePostBackEvent(ByVal eventArgument As String) _
-        '  'Implements System.Web.UI.IPostBackEventHandler.RaisePostBackEvent
-
-        'End Sub
-
         Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs)
-
-
 
         End Sub
 
@@ -125,42 +116,25 @@ Namespace UF.Research.Authentication.Shibboleth
 
         Private Sub GetShibTypes()
 
-            Dim alShibType As New ArrayList(New String() {"Active Directory", "PeopleSoft"})
+            Dim sh As ShibHandler = New ShibHandler
+
+            Dim alShibType As New ArrayList '(New String() {"Active Directory", "PeopleSoft"})
+            For Each ShibHeaderIn In sh.ShibHeaders
+
+                alShibType.Add(ShibHeaderIn.HeaderName)
+
+            Next
+
+            'read the Header Items in here into alShibType
+
             Me.ddlSHIBType.DataSource = alShibType
             ddlSHIBType.DataBind()
 
             Dim ShibTypeValue As Object = DataBinder.Eval(DataItem, "ShibRoleType")
 
-            If ShibTypeValue.Equals(DBNull.Value) Then
-                ShibTypeValue = "Active Directory"
-
-            End If
         End Sub
 
         Private Sub GetSHIBRoles()
-
-            'Dim objConn As New SqlConnection("Data Source=dev.data.research.ufl.edu;Initial Catalog=DotNetNuke_Professional;Integrated Security=True")
-
-            'Dim objCmd As New SqlCommand("GetAllSHIBRoles", objConn)
-            'objCmd.CommandType = CommandType.Text
-
-            'objCmd.CommandText = "Select RoleID, RoleName from dbo.dnn_SHIBRoles"
-
-            'objConn.Open()
-            'Dim DR As SqlDataReader = objCmd.ExecuteReader()
-
-            'Dim dt As New DataTable
-            'dt.Load(DR)
-
-            'For i = 0 To dt.Rows.Count - 1
-
-            '    Me.ddlSHIBRoles.Items.Add(dt.Rows(i).Field(Of String)("RoleName"))
-            '    Me.ddlSHIBRoles.Items(i).Value = dt.Rows(i).Field(Of Integer)("RoleID")
-            '    Me.ddlSHIBRoles.Items(i).Text = dt.Rows(i).Field(Of String)("RoleName")
-            'Next
-            'Me.ddlSHIBRoles.Items.FindByText(Me.txtSHIBRoleName.Text).Selected = True
-            'cmbType.SelectedValue = GridView1.DataKeys[e.Row.RowIndex].Values[1].ToString();
-            'ddlSHIBRoles.SelectedValue = 2
 
         End Sub
 
@@ -175,15 +149,30 @@ Namespace UF.Research.Authentication.Shibboleth
         End Sub
 
         Private Sub Page_Init(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Init
-            Me.btnCancel.Text = Localization.GetString("btnCancel", LocalResourceFile)
-            Me.btnInsert.Text = Localization.GetString("btnInsert", LocalResourceFile)
-            Me.btnUpdate.Text = Localization.GetString("btnUpdate.Header", LocalResourceFile)
+           
         End Sub
 
         Private Sub Page_PreRender(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.PreRender
 
             If Me.txtDNNRoleName.Text <> "" Then
-                Me.ddlDNNRoles.Items.FindByText(Me.txtDNNRoleName.Text).Selected = True
+
+                If Me.ddlDNNRoles.Items.FindByText(Me.txtDNNRoleName.Text) IsNot Nothing Then
+
+                    Me.ddlDNNRoles.Items.FindByText(Me.txtDNNRoleName.Text).Selected = True
+
+                End If
+
+            End If
+
+
+            If Me.txtShibRoleType.Text <> "" Then
+
+                Me.ddlSHIBType.Items.FindByText(txtShibRoleType.Text).Selected = True
+
+            End If
+
+            If Me.txtShibRoleType.Text Is Nothing Then
+                Me.ddlSHIBType.Items(0).Selected = True
             End If
 
             Me.btnCancel.Text = Localization.GetString("btnCancel", LocalResourceFile)
@@ -193,64 +182,8 @@ Namespace UF.Research.Authentication.Shibboleth
         End Sub
 
 
-        Private Sub btnInsert_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnInsert.Click
-            Dim intDNNRoleID As Integer = Me.ddlDNNRoles.SelectedItem.Value
-
-            Dim strDNNRoleName As String = Me.ddlDNNRoles.SelectedItem.ToString
-            Dim strSHIBRoleName As String
-            If Me.ddlSHIBType.SelectedItem.ToString = "PeopleSoft" Then
-                strSHIBRoleName = "PS:"
-            Else
-                strSHIBRoleName = "AD:"
-            End If
-            strSHIBRoleName = strSHIBRoleName & Me.txtSHIBRoleName.Text
-
-            Dim strRM As String = strDNNRoleName.ToString & ";" & strSHIBRoleName.ToString
-
-        End Sub
-
-        Private Sub btnUpdate_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnUpdate.Click
-            Dim strDNNRoleName As String = Me.ddlDNNRoles.SelectedItem.ToString
-
-            Dim strSHIBRoleName As String = Me.txtSHIBRoleName.Text
-
-            If Me.ddlSHIBType.SelectedItem.ToString = "PeopleSoft" Then
-                strSHIBRoleName = "PS:"
-            Else
-                strSHIBRoleName = "AD:"
-            End If
-            strSHIBRoleName = strSHIBRoleName & Me.txtSHIBRoleName.Text
-
-            Dim strRM As String = strDNNRoleName.ToString & ";" & strSHIBRoleName.ToString
-
-            Dim strSettingName As String = Me.labelRMID.Text
-
-            Dim editedItem As GridEditableItem = Me.Parent.NamingContainer
-
-        End Sub
-
         Private Sub txtSHIBRoleName_DataBinding(ByVal sender As Object, ByVal e As System.EventArgs) Handles txtSHIBRoleName.DataBinding
 
-        End Sub
-
-        Private Sub txtSHIBRoleName_PreRender(ByVal sender As Object, ByVal e As System.EventArgs) Handles txtSHIBRoleName.PreRender
-            If Left(txtSHIBRoleName.Text, 3) = "PS:" Or Left(txtSHIBRoleName.Text, 3) = "AD:" Then
-
-                txtSHIBRoleName.Text = Mid(txtSHIBRoleName.Text, 4)
-
-            End If
-
-        End Sub
-
-        Private Sub ddlSHIBType_PreRender(ByVal sender As Object, ByVal e As System.EventArgs) Handles ddlSHIBType.PreRender
-
-            If Left(txtSHIBRoleName.Text, 3) = "PS:" Then
-                'ddlSHIBType.SelectedItem.Text = "PeopleSoft"
-                ddlSHIBType.SelectedIndex = 1
-            Else
-                'ddlSHIBType.SelectedItem.Text = "Active Directory"
-                ddlSHIBType.SelectedIndex = 0
-            End If
         End Sub
 
     End Class

@@ -69,8 +69,8 @@ Namespace UF.Research.Authentication.Shibboleth
         Public Overrides ReadOnly Property Enabled() As Boolean
             Get
                 'Return AuthenticationConfig.GetConfig(PortalId).Enabled
-                Dim config As ShibConfiguration = ShibConfiguration.GetConfig()
-                Return config.ShibbolethAuthProvider
+                Dim _ShibConfiguration As ShibConfiguration = ShibConfiguration.GetConfig()
+                Return _ShibConfiguration.Enabled
             End Get
         End Property
 
@@ -79,8 +79,8 @@ Namespace UF.Research.Authentication.Shibboleth
 #Region "Event Handlers"
 
         Private Sub Page_Init(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Init
-            Dim config As ShibConfiguration = ShibConfiguration.GetConfig()
-            If config Is Nothing Then
+            Dim _ShibConfiguration As ShibConfiguration = ShibConfiguration.GetConfig()
+            If _ShibConfiguration Is Nothing Then
                 Exit Sub
             End If
 
@@ -129,8 +129,8 @@ Namespace UF.Research.Authentication.Shibboleth
 
             'System.Diagnostics.Debugger.Break()
 
-            Dim config As ShibConfiguration = ShibConfiguration.GetConfig()
-            If config Is Nothing Then
+            Dim _ShibConfiguration As ShibConfiguration = ShibConfiguration.GetConfig()
+            If _ShibConfiguration Is Nothing Then
                 Exit Sub
             End If
 

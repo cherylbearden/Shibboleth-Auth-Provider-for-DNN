@@ -147,4 +147,22 @@
   <data name="SHIBRoleType.Header" xml:space="preserve">
     <value>SHIB Role Type</value>
   </data>
+  <data name="btnUpdateAttributes.Text" xml:space="preserve">
+    <value>Update User Attributes</value>
+  </data>
+  <data name="Source.Header" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="DNNProperty.Header" xml:space="preserve">
+    <value>Property</value>
+  </data>
+  <data name="Type.Header" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="SHIBHdrVarDelim.Header" xml:space="preserve">
+    <value>Header Variable Delimiter</value>
+  </data>
+  <data name="SHIBHdrVarName.Header" xml:space="preserve">
+    <value>Header Variable Name</value>
+  </data>
 </root>

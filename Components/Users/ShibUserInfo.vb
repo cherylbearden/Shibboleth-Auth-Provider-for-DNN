@@ -29,7 +29,6 @@ Namespace UF.Research.Authentication.Shibboleth
         Private mGLID As String = ""
         Private mDepartment As String
 
-        'Private mIsAuthenticated As Boolean
         Private mAuthenticationExists As Boolean = False
 
 
@@ -66,22 +65,14 @@ Namespace UF.Research.Authentication.Shibboleth
             End Set
         End Property
 
-        Public Property sGLID() As String
+        Public ReadOnly Property Name() As String Implements IAuthenticationObjectBase.Name
             Get
                 Return mGLID
             End Get
-            Set(ByVal Value As String)
-                mGLID = Value
-            End Set
+            'Set(ByVal Value As String)
+            '    mGLID = Value
+            'End Set
         End Property
-
-        Public ReadOnly Property Name() As String Implements IAuthenticationObjectBase.Name
-            Get
-                Return sGLID
-            End Get
-
-        End Property
-
 
         Public ReadOnly Property ObjectClass() As ObjectClass Implements IAuthenticationObjectBase.ObjectClass
             Get

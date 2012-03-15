@@ -1,6 +1,6 @@
 <dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="Shibboleth_Authentication" type="Auth_System" version="01.00.00">
+    <package name="Shibboleth_Authentication" type="Auth_System" version="01.00.06">
       <friendlyname>UF DNN Shibboleth Authentication Project</friendlyname>
       <description>The UF DNN Authentication Project is an Authentication provider for Shibboleth.</description>
       <owner>
@@ -11,19 +11,33 @@
       </owner>
      
       <dependencies>
-        <dependency type="CoreVersion">05.00.00</dependency>
+        <dependency type="CoreVersion">05.05.01</dependency>
       </dependencies>
       <components>
 
-      <component type="Assembly">
-	      <assemblies>
-          <assembly>
-            <path>bin</path>
-            <name>UF.Research.Authentication.Shibboleth.dll</name>
-            <sourceFileName>UF.Research.Authentication.Shibboleth.dll</sourceFileName>
-          </assembly>
-        </assemblies>
-      </component>      
+    <component type="Script">
+      <scripts>
+        <basePath>DesktopModules\AuthenticationServices\Shibboleth</basePath>
+        <script type="Install">
+          <name>01.00.06.SqlDataProvider</name>
+          <version>01.00.06</version>
+        </script>
+        <script type="UnInstall">
+          <name>Uninstall.SqlDataProvider</name>
+          <version>01.00.06</version>
+        </script>
+      </scripts>
+    </component>
+
+    <component type="Assembly">
+      <assemblies>
+        <basePath>bin</basePath>
+        <assembly>
+          <name>UF.Research.Authentication.Shibboleth.dll</name>
+        </assembly>
+            
+      </assemblies>
+    </component>   
 
         <component type="AuthenticationSystem">
           <authenticationService>
@@ -65,14 +79,13 @@
                   </moduleControl>
                   <moduleControl>
                     <controlKey>Edit</controlKey>
-                    <controlSrc>DesktopModules/AuthenticationServices/Shibboleth/rmDetail.ascx</controlSrc>
+                    <controlSrc>DesktopModules/AuthenticationServices/Shibboleth/hvDetail.ascx</controlSrc>
                     <supportsPartialRendering>False</supportsPartialRendering>
                     <controlTitle />
                     <controlType>Edit</controlType>
                     <iconFile />
                     <helpUrl />
                   </moduleControl>
-
                 </moduleControls>
               </moduleDefinition>
             </moduleDefinitions>
@@ -93,20 +106,16 @@
             </file>
 			<file>
 				<path></path>
-				  <name>ShibbolethLogin.vb</name>
+				<name>ShibbolethLogin.vb</name>
 			</file>
-            <file>
-              <path>HttpModule</path>
-              <name>AuthenticationModule.vb</name>
-            </file>
-            <file>
-              <path>App_LocalResources</path>
-              <name>Login.ascx.resx</name>
-            </file>
-            <file>
-              <path>App_LocalResources</path>
-              <name>Settings.ascx.resx</name>
-            </file>
+      <file>
+        <path>HttpModule</path>
+        <name>AuthenticationModule.vb</name>
+      </file>
+      <file>
+        <path>App_LocalResources</path>
+        <name>Settings.ascx.resx</name>
+      </file>
 
 			<file>
 			  <path>App_LocalResources</path>
@@ -115,32 +124,45 @@
 			<file>
 			  <path>App_LocalResources</path>
 			  <name>ViewRoleMappings.ascx.resx</name>
-			</file>  
-			  
-            <file>
-              <name>Login.ascx</name>
-            </file>
-            <file>
-              <name>Settings.ascx</name>
-            </file>
-            <file>
-              <name>Settings.ascx.designer.vb</name>
-            </file>
-            <file>
-              <name>Settings.ascx.vb</name>
-            </file>
-            <file>
-              <name>ViewRoleMappings.ascx</name>
-            </file>
-            <file>
-              <name>rmDetail.ascx</name>
-            </file>
-            <file>
-              <name>Login.ascx.vb</name>
-            </file>
-            <file>
-              <name>Shibboleth.css</name>
-            </file>
+			</file>
+      <file>
+        <path>App_LocalResources</path>
+        <name>Login.ascx.resx</name>
+      </file>
+      <file>
+        <name>Settings.ascx</name>
+      </file>
+      <file>
+        <name>Settings.ascx.designer.vb</name>
+      </file>
+      <file>
+        <name>Settings.ascx.vb</name>
+      </file>
+      <file>
+        <name>ViewRoleMappings.ascx</name>
+      </file>
+			<file>
+			  <name>Login.ascx</name>
+			</file> 
+      <file>
+        <name>rmDetail.ascx</name>
+      </file>
+	    <file>
+	      <name>uaDetail.ascx</name>
+	    </file>
+      <file>
+        <name>hvDetail.ascx</name>
+      </file>
+      <file>
+        <name>Shibboleth.css</name>
+      </file>
+
+			<file>
+			    <name>TestCase.txt</name>
+			</file>
+			<file>
+			    <name>TestCaseWarrenResearch.txt</name>
+			</file>
           </files>
         </component>
       </components>

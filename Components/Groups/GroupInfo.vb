@@ -18,6 +18,7 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 Imports DotNetNuke.Security.Roles
+Imports System.Collections
 
 Namespace UF.Research.Authentication.Shibboleth
 
@@ -25,17 +26,16 @@ Namespace UF.Research.Authentication.Shibboleth
         Inherits RoleInfo
         Implements IAuthenticationObjectBase
 
-        Private mGUID As String = ""
-        Private mLocation As String = ""
+        'Private mGUID As String = ""
+        'Private mLocation As String = ""
         Private mIsPopulated As Boolean = False
-        Private mMembers As New ArrayList ' store members object
+        'Private mMembers As New ArrayList ' store members object
         Private mAuthenticationMember As New ArrayList ' store members DistinguishedName string
-        Private mDNNPopulated As Boolean = False
-        Private mDNNMember As New ArrayList  ' store members UserId        
+        'Private mDNNPopulated As Boolean = False
+        'Private mDNNMember As New ArrayList  ' store members UserId        
 
-        Private mProcessLog As String = ""
+        'Private mProcessLog As String = ""
 
- 
         Sub New()
             MyBase.New()
         End Sub

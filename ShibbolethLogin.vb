@@ -113,7 +113,7 @@ Namespace UF.Research.Authentication.Shibboleth
                     HostingPermissions.Demand()
 
                     'Check if Windows Auth is enabled for the portal
-                    Return ShibConfiguration.GetConfig().ShibbolethAuthProvider
+                    Return ShibConfiguration.GetConfig().Enabled
                 Catch ex As Exception
                     Return False
                 End Try
@@ -143,40 +143,47 @@ Namespace UF.Research.Authentication.Shibboleth
                 Exit Sub
             End If
 
+            Dim blnSimulateLogin As Boolean = config.SimulateLogin
+
             Dim prjSettings As UF.Research.Authentication.Shibboleth.ProjectSettings = New ProjectSettings
             Dim slnPath As String = prjSettings.slnPath
 
             Dim ipAddress As String = ""
 
             Dim sh As ShibHandler = New ShibHandler
-            Dim eppn As String = sh.EPPN
+            Dim UserName As String = sh.userName
 
-            If eppn Is Nothing Then
+            If UserName Is Nothing Or UserName = "" Then
 
             Else
-
-                Dim UserName As String = sh.EPPN
-
-                LoginStatus = UserLoginStatus.LOGIN_SUCCESS
-                Dim testUserName As String = UserName + CType(DateTime.Now, String)
 
                 Dim objAuthentication As ShibAuthController = New ShibAuthController
                 Dim objUser As DNNUserInfo = objAuthentication.ManualLogon(UserName, LoginStatus, ipAddress)
 
-                Dim authenticated As Boolean = Null.NullBoolean
-                Dim message As String = Null.NullString
-                authenticated = (LoginStatus <> UserLoginStatus.LOGIN_FAILURE)
+                'cb_050411 - don't allow login if doing simulation and user is superuser
+                If Not blnSimulateLogin Or blnSimulateLogin And objUser.IsSuperUser = False Then
 
-                If objUser Is Nothing Then
-                    AddEventLog(portalID, UserName, Null.NullInteger, objPortalSettings.PortalName, ipAddress, LoginStatus)
-                Else
+                    LoginStatus = UserLoginStatus.LOGIN_SUCCESS
+                    'Dim testUserName As String = UserName + CType(DateTime.Now, String)
 
-                    objAuthentication.AuthenticationLogon()
-                    Dim eventArgs As UserAuthenticatedEventArgs = New UserAuthenticatedEventArgs(objUser, UserName, LoginStatus, "Shibboleth")
-                    eventArgs.Authenticated = authenticated
-                    eventArgs.Message = message
-                    OnUserAuthenticated(eventArgs)
+                    Dim authenticated As Boolean = Null.NullBoolean
+                    Dim message As String = Null.NullString
+                    authenticated = (LoginStatus <> UserLoginStatus.LOGIN_FAILURE)
+
+                    If objUser Is Nothing Then
+                        AddEventLog(portalID, UserName, Null.NullInteger, objPortalSettings.PortalName, ipAddress, LoginStatus)
+                    Else
+
+                        objAuthentication.AuthenticationLogon()
+                        Dim eventArgs As UserAuthenticatedEventArgs = New UserAuthenticatedEventArgs(objUser, UserName, LoginStatus, "Shibboleth")
+                        eventArgs.Authenticated = authenticated
+                        eventArgs.Message = message
+                        OnUserAuthenticated(eventArgs)
+
+                    End If
+
                 End If
+                'cb_050411
 
             End If
 

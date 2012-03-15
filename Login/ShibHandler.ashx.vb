@@ -59,6 +59,7 @@ Imports DotNetNuke
 Imports DotNetNuke.Common.Globals
 Imports System.Net
 Imports System.Security
+Imports System.Collections
 
 Imports DotNetNuke.Entities.Tabs
 
@@ -83,146 +84,126 @@ Namespace UF.Research.Authentication.Shibboleth
             End Set
         End Property
 
-        Private mGLID As String = ""
+        'Private config As ShibConfiguration = ShibConfiguration.GetConfig()
+
+        Private _portalSettings As PortalSettings ' = PortalController.GetCurrentPortalSettings
+
         Private mDistinguishedName As String = ""
-        '' Additional properties which are not provided by MemberRole
-        Private mDepartment As String
+        ' '' Additional properties which are not provided by MemberRole
 
-        Private mEPPN As String
-        Private mDisplayName As String
-        Private mGivenName As String
-        Private mCN As String
-        Private mSN As String
-        Private mMiddleName As String
-        Private mUFID As String
-        Private mPostalAddress As String
+        Private alUIProperties As ArrayList
+        Private alShibTestDataUserProperties As ArrayList
+        Private alShibHeaders As ArrayList
+        Private alShibHeaderArrays As ArrayList
 
-        Private alADGroups As ArrayList
-        Private alPSRoles As ArrayList
+        Private ShibTestDataUserProperties As System.Collections.Generic.Dictionary(Of String, String)
 
+        Private mblnSimulateLogin As Boolean = False
+        Private mUserName As String = ""
+        Private mCurrentPortalID As Integer = 0
 
-        Public Property GLID() As String
+        Private Const RD_BUFFER_SIZE As Integer = 4 * 1024
+
+        Public Property currentPortalID() As Integer
             Get
-                Return Context.Request.ServerVariables("HTTP_GLID")
+                Dim Request As HttpRequest = HttpContext.Current.Request
+                Return Request.QueryString.Item(0)
+
             End Get
-            Set(ByVal value As String)
-                mGLID = value
+            Set(ByVal value As Integer)
+                mCurrentPortalID = value
             End Set
         End Property
 
-        Public Property DistinguishedName() As String
+        Public Property blnSimulateLogin() As Boolean
             Get
-                Return Context.Request.ServerVariables("HTTP_BUSINESSNAME")
+                Dim config As ShibConfiguration = ShibConfiguration.GetConfig()
+                Dim currentProjectSettings As ProjectSettings = New ProjectSettings
+                If config Is Nothing Then
+                    Dim portalID As Integer = Request.QueryString.Item(0)
+                    Dim ps As PortalSettings = New PortalSettings
+                    ps = ProjectSettings.CreateNewPortalSettings(portalID)
+                    config = ShibConfiguration.GetConfig()
+                    Return config.SimulateLogin
+                End If
+                Return config.SimulateLogin
             End Get
-            Set(ByVal value As String)
-                mDistinguishedName = value
+            Set(ByVal value As Boolean)
+                mblnSimulateLogin = value
             End Set
         End Property
 
-        Public Property Department() As String
+        Public Property userName() As String
             Get
-                Return Context.Request.ServerVariables("HTTP_DEPARTMENTNUMBER")
-            End Get
-            Set(ByVal value As String)
-                mDepartment = value
-            End Set
-        End Property
-
-        Public Property EPPN() As String
-            Get
-                Return Context.Request.ServerVariables("HTTP_EPPN")
-            End Get
-            Set(ByVal value As String)
-                mEPPN = value
-            End Set
-        End Property
-
-        Public Property DisplayName() As String
-            Get
-                Return Context.Request.ServerVariables("HTTP_DisplayName")
-            End Get
-            Set(ByVal value As String)
-                mDisplayName = value
-            End Set
-        End Property
-
-        Public Property GivenName() As String
-            Get
-                Return Context.Request.ServerVariables("HTTP_GIVENNAME")
-            End Get
-            Set(ByVal value As String)
-                mGivenName = value
-            End Set
-        End Property
-
-        Public Property CN() As String
-            Get
-                Return Context.Request.ServerVariables("HTTP_CN")
-            End Get
-            Set(ByVal value As String)
-                mCN = value
-            End Set
-        End Property
-
-        Public Property SN() As String
-            Get
-                Return Context.Request.ServerVariables("HTTP_SN")
-            End Get
-            Set(ByVal value As String)
-                mSN = value
-            End Set
-        End Property
-
-        Public Property MiddleName() As String
-            Get
-                Return Context.Request.ServerVariables("HTTP_MiddleName")
-            End Get
-            Set(ByVal value As String)
-                mMiddleName = value
-            End Set
-        End Property
-
-        Public Property UFID() As String
-            Get
-                Return Context.Request.ServerVariables("HTTP_UFID")
-            End Get
-            Set(ByVal value As String)
-                mUFID = value
-            End Set
-        End Property
-
-        Public Property PostalAddress() As String
-            Get
-                Return Context.Request.ServerVariables("HTTP_PostalAddress")
-            End Get
-            Set(ByVal value As String)
-                mPostalAddress = value
-            End Set
-        End Property
-
-        Public Property AdGroups() As ArrayList
-            Get
-                If alADGroups Is Nothing Then
-                    ProcessHeaders()
+                If Not blnSimulateLogin Then
+                    Return GetShibUserName()
+                    
+                Else
+                    'Return GetTestCaseUserName()
+                    Return GetShibUserName()
                 End If
 
-                Return alADGroups
             End Get
-            Set(ByVal value As ArrayList)
-                alADGroups = value
+            Set(ByVal value As String)
+                mUserName = value
             End Set
         End Property
 
-        Public Property PSRoles() As ArrayList
-            Get
-                If alPSRoles Is Nothing Then
-                    ProcessHeaders()
-                End If
+        Public Structure ShibUserAttributesIn
+            Dim ShibHeaderVariableName As String
+            Dim ShibHeaderVariableValue As String
+        End Structure
 
-                Return alPSRoles
+        Public Structure ShibUserRolesIn
+            Dim RoleName As String
+        End Structure
+
+        Public Structure UIPropertiesIN
+            Dim FieldType As String
+            Dim FieldName As String
+            Dim FieldSource As String
+            Dim blnOverWrite As Boolean
+        End Structure
+
+        Public Structure ShibHeaderIn
+            Dim HeaderName As String
+            Dim HeaderDelimiter As Char
+        End Structure
+
+        Public Structure ShibHeaderArraysIn
+            Dim ShibHeaderName As String
+            Dim ShibHeaderVariables As ArrayList
+        End Structure
+
+        Public Property UserInfoProperties() As ArrayList
+
+            Get
+                Return BuildUserInfo()
             End Get
             Set(ByVal value As ArrayList)
-                alPSRoles = value
+                alUIProperties = value
+            End Set
+
+        End Property
+
+        Public Property ShibHeaders() As ArrayList
+            Get
+                Return GetShibHeaders()
+
+            End Get
+            Set(ByVal value As ArrayList)
+                alShibHeaders = value
+            End Set
+        End Property
+
+        Public Property ShibHeaderArrays() As ArrayList
+            Get
+                ProcessShibHeaders()
+                Return alShibHeaderArrays
+
+            End Get
+            Set(ByVal value As ArrayList)
+                alShibHeaderArrays = value
             End Set
         End Property
 
@@ -236,6 +217,7 @@ Namespace UF.Research.Authentication.Shibboleth
         Private Shared Sub AddEventLog(ByVal portalId As Integer, ByVal username As String, ByVal userId As Integer, ByVal portalName As String, ByVal Ip As String, ByVal loginStatus As UserLoginStatus)
 
             Dim objEventLog As New DotNetNuke.Services.Log.EventLog.EventLogController
+            'Dim objEventLog As DotNetNuke.Services.Log.EventLog.EventLogController
 
             ' initialize log record
             Dim objEventLogInfo As New DotNetNuke.Services.Log.EventLog.LogInfo
@@ -257,12 +239,12 @@ Namespace UF.Research.Authentication.Shibboleth
         Public Overrides ReadOnly Property Enabled() As Boolean
             Get
                 Try
-                    'Make sure app is running at full trust
-                    Dim HostingPermissions As New AspNetHostingPermission(System.Security.Permissions.PermissionState.Unrestricted)
-                    HostingPermissions.Demand()
+                    'Did require full trust previously.  Medium trust is ok now
+                    'Dim HostingPermissions As New AspNetHostingPermission(System.Security.Permissions.PermissionState.Unrestricted)
+                    'HostingPermissions.Demand()
 
-                    'Check if Windows Auth is enabled for the portal
-                    Return ShibConfiguration.GetConfig().ShibbolethAuthProvider
+                    'Check if Shib Auth is enabled for the portal
+                    Return ShibConfiguration.GetConfig().Enabled
                 Catch ex As Exception
                     Return False
                 End Try
@@ -271,15 +253,28 @@ Namespace UF.Research.Authentication.Shibboleth
 
 #End Region
 
+        Public Sub New()
+            'moved to Private variable so it is accessible throughout class
+            'but initialized here
+            _portalSettings = PortalController.GetCurrentPortalSettings
+        End Sub
+
+        ' TODO - break this method into a series of method/subroutine calls.  too much logic is placed inline
         Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
 
-            Dim Request As HttpRequest = HttpContext.Current.Request
-            Dim Response As HttpResponse = HttpContext.Current.Response
+            Dim objEventLog As New DotNetNuke.Services.Log.EventLog.EventLogController
 
+            'If Utilities.CheckShibEventLogging() Then
+            objEventLog.AddLog("ShibHandler_ProcessRequest1", "Entering Process Request - ShibHandler_ProcessRequest1", PortalSettings, -1, ShibAlert)
+            'End If
+
+            Dim Request As HttpRequest = HttpContext.Current.Request
+            Dim Response As HttpResponse = HttpContext.Current.Response ' sra - Why are we creating an  instance of the response if we'e not using it.
+
+            ' TODO - have this use the key name, not the index.  what if it changes?
             Dim portalID As Integer = Request.QueryString.Item(0)
 
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
-
+            ' TODO - first method refactor - create method to build out settings.
             Dim ps As PortalSettings = New PortalSettings
             ps = CreateNewPortalSettings(portalID)
 
@@ -290,144 +285,571 @@ Namespace UF.Research.Authentication.Shibboleth
                 Exit Sub
             End If
 
+            objEventLog.AddLog("ShibHandler_ProcessRequest3", "Portal Settings Created. - ShibHandler_ProcessRequest1", PortalSettings, -1, ShibAlert)
+          
+            blnSimulateLogin = config.SimulateLogin ' TODO - move this to a singleton instance.
+
+            ' TODO - why are we creating a second instance of the request?
             Dim objRequest As HttpRequest = context.Request
+
 
             Dim prjSettings As UF.Research.Authentication.Shibboleth.ProjectSettings = New ProjectSettings
             Dim slnPath As String = prjSettings.slnPath
+            ' END FIRST METHOD
+
             Dim strURL As String
 
             Dim ipAddress As String
 
-            Dim eppn As String = context.Request.ServerVariables("HTTP_EPPN")
+            'cb - 020812 If userName is empty then return to the default page
 
-            If context.Request.ServerVariables("HTTP_EPPN") Is Nothing Then
+            ' TODO - because the first if block forces a redirect, separate it from the other if blocks.
+            If userName Is "UserName NotFound" And Not blnSimulateLogin Then
+                'If userName not found And Not blnSimulateLogin Then
                 'if there is nothing returned from Shibboleth, then you probably
                 'don't have the Login directory secured by Shibboleth and you're 
                 'getting here without logging in first. 
-                'ToDo
-                'send a message asking the user if directory has been secured to shibboleth
-                'and return.
-                Console.WriteLine("No Data Returned From Shibboleth!  Is your \Login directory secured?")
-                strURL = slnPath + "Home.aspx"
-                HttpContext.Current.Response.Redirect(strURL, True)
 
-            Else
-
-                ProcessHeaders()
-
-                Dim UserName = context.Request.ServerVariables("HTTP_EPPN")
-
-                LoginStatus = UserLoginStatus.LOGIN_SUCCESS
-                Dim testUserName As String = UserName + CType(DateTime.Now, String)
-
-                Dim objAuthentication As ShibAuthController = New ShibAuthController
-                Dim objUser As DNNUserInfo = objAuthentication.ManualLogon(UserName, LoginStatus, ipAddress)
-
-                Me.DistinguishedName = context.Request.ServerVariables("HTTP_BUSINESSNAME")
-
-                Dim authenticated As Boolean = Null.NullBoolean
-                Dim message As String = Null.NullString
-                authenticated = (LoginStatus <> UserLoginStatus.LOGIN_FAILURE)
-
-                'If objUser is nothing then there must've been a problem logging in. Write to the eventlog.
-                If objUser Is Nothing Then
-                    AddEventLog(portalID, UserName, Null.NullInteger, PortalSettings.PortalName, ipAddress, LoginStatus)
-                Else
-
-                    objAuthentication.AuthenticationLogon()
-                    Dim eventArgs As UserAuthenticatedEventArgs = New UserAuthenticatedEventArgs(objUser, UserName, LoginStatus, "Shibboleth")
-                    eventArgs.Authenticated = authenticated
-                    eventArgs.Message = message
-                    OnUserAuthenticated(eventArgs)
-                End If
-
-                If Not HttpContext.Current.Request.Cookies("DNNReturnTo" + _portalSettings.PortalId.ToString()) Is Nothing Then
-                    strURL = HttpContext.Current.Request.Cookies("DNNReturnTo" + _portalSettings.PortalId.ToString()).Value
-                Else
-                    strURL = slnPath + "Home.aspx"
-
-                End If
+                'cb_062711
+                'strURL = slnPath + "Home.aspx"
+                strURL = slnPath + "default.aspx"
 
                 HttpContext.Current.Response.Redirect(strURL, True)
 
-                If Not HttpContext.Current.Request.Cookies("DNNReturnTo" + _portalSettings.PortalId.ToString()) Is Nothing Then
-                    strURL = HttpContext.Current.Request.Cookies("DNNReturnTo" + _portalSettings.PortalId.ToString()).Value
-                    'strURL = HttpContext.Current.Request.Cookies("DNNReturnTo").Value
-                Else
-                    strURL = slnPath + "Home.aspx"
+            ElseIf blnSimulateLogin Then
+                ' TODO - if the first if block is separated, then we can take the ProcessShibHeaders and BuildUserInfo method out of the if statements and proces the simulation separately
 
+                'BuildUserInfo loads up the UserInfoProperties array list for either Shibboleth logins or Shibboleth simulation testing
+                'and the ShibTestDataUserProperties dictionary for Shibboleth simulation testing
+
+                objEventLog.AddLog("ShibHandler_ProcessRequest5", "Simulating Login - ShibHandler_ProcessRequest1.5", PortalSettings, -1, ShibAlert)
+
+                ProcessShibHeaders()
+                BuildUserInfo()
+
+                ' regardless of condition, this exits the sub anyway.  we should refactor that.
+                If alShibTestDataUserProperties Is Nothing Then
+                    'no data was read in so exit sub
+                    HttpContext.Current.Response.Write("TestCase.txt File Not Found or incorrect data file.")
+                    Exit Sub
+                ElseIf ShibTestDataUserProperties.Count = 0 Then
+                    HttpContext.Current.Response.Write("TestCase.txt File Not Found or incorrect data file.")
+                    Exit Sub
                 End If
 
-                HttpContext.Current.Response.Redirect(strURL, True)
-                'HttpContext.Current.Response.Redirect("~/Default.aspx")
-                'Dim instance As HttpServerUtility = System.Web.HttpContext.Current.Server
-                'instance.Transfer("~/Default.aspx")
 
+            Else 'this is a normal Shibboleth login
+
+                'Process Headers assigns values to alADGroups and alPSRoles obtained from Server Variables returned after signing
+                'in through Shibboleth
+
+                ProcessShibHeaders()
+                BuildUserInfo()
 
             End If
 
+            'executing BuildUserInfo will load up the alUserInfo array list.  If this arraylist has a 
+            'count of 0, you're not pulling shibboleth data in so maybe you meant to be simulating a 
+            'shib login but forgot to set the simulation flag.  Only Login if BuildUserInfo().count > 0.'
 
-        End Sub
+            'cb_020812
+            'If BuildUserInfo().Count > 0 Then
+            If BuildUserInfo().Count >= 0 Then ' TODO  - we need something better than a count to determine if the user info was built.  maybe check for null
+                'at this point we should have userName either by signing in through Shibboleth
+                'or by signing in through the siumlation Test Case. 
 
-        Public Sub ProcessHeaders()
+                Dim objAuthentication As ShibAuthController = New ShibAuthController
 
-            Dim objRequest As HttpRequest = Context.Request
+                Dim objUser As DNNUserInfo = objAuthentication.ManualLogon(userName, LoginStatus, ipAddress)
 
-            For Each Header As String In objRequest.Headers
+                'cb_050411 - don't allow login if doing simulation and user is superuser
+                ' TODO - group the conditions.  right now it doesn't matter if it's a simulation as long as the user is not a super user
+                If Not blnSimulateLogin Or blnSimulateLogin And objUser.IsSuperUser = False Then
 
-                Select Case Header.ToUpper
-                    Case "UFAD_GROUPS"
-                        alADGroups = OutputArray(Header, ";")
-                    Case "UFAD_PSROLES"
-                        alPSRoles = OutputArray(Header, "$")
-                    Case "HTTPS_SERVER_ISSUER", "HTTPS_SERVER_SUBJECT", "CERT_SERVER_SUBJECT", "CERT_SERVER_ISSUER"
+                    LoginStatus = UserLoginStatus.LOGIN_SUCCESS
 
-                    Case "ALL_HTTP", "ALL_RAW"
+                    Dim authenticated As Boolean = Null.NullBoolean
+                    Dim message As String = Null.NullString
+                    authenticated = (LoginStatus <> UserLoginStatus.LOGIN_FAILURE)
 
-                    Case Else
+                    'If objUser is nothing then there must've been a problem logging in. Write to the eventlog.
+                    'objUser will be nothing if you are running a simulation and forget to include the property in the text file
+                    'that is mapped to the userName.  (For UF, this property is HTTP_EPPN)  This property is mapped via the settingName
+                    ''Shib_UserName' in portal Settings.
 
-                        If objRequest.Headers.Item(Header) = "" Then
-                            'Me.Page.Response.Write(" (blank)<br><br>")
-                        Else
-                            'Me.Page.Response.Write("<br>--> " & objRequest.Headers.Item(Header) & "<br><br>")
-                        End If
+                    If objUser Is Nothing Then
+                        AddEventLog(portalID, userName, Null.NullInteger, PortalSettings.PortalName, ipAddress, LoginStatus)
+                    Else
 
-                End Select
+                        objAuthentication.AuthenticationLogon()
+                        Dim eventArgs As UserAuthenticatedEventArgs = New UserAuthenticatedEventArgs(objUser, userName, LoginStatus, "Shibboleth")
+                        eventArgs.Authenticated = authenticated
+                        eventArgs.Message = message
+                        OnUserAuthenticated(eventArgs)
+                    End If
 
-            Next Header
+                End If
 
-        End Sub
+            End If
 
-        Public Function OutputArray(ByVal sHeader As String, ByVal sDelimiter As String) As ArrayList
+            If Not HttpContext.Current.Request.Cookies("DNNReturnTo" + _portalSettings.PortalId.ToString()) Is Nothing Then
+                strURL = HttpContext.Current.Request.Cookies("DNNReturnTo" + _portalSettings.PortalId.ToString()).Value
 
-            Dim al As ArrayList
-            Dim objRequest As HttpRequest = Context.Request
-            Dim sArray As String()
-            Dim sArrayList As ArrayList = New ArrayList
-
-            sArray = Split(objRequest.Headers.Item(sHeader), sDelimiter)
-            For Each sItem As String In sArray
-                sArrayList.Add(sItem)
-            Next
-            If sHeader.ToUpper = "UFAD_GROUPS" Then
-                al = sArrayList
-                Return al
             Else
-                If sHeader.ToUpper = "UFAD_PSROLES" Then
-                    al = sArrayList
-                    Return al
+                strURL = slnPath + "Default.aspx"
+
+            End If
+
+            HttpContext.Current.Response.Redirect(strURL, True)
+
+        End Sub
+        'Public Function GetShibUserName() As String
+
+        '    Dim psDict As System.Collections.Generic.Dictionary(Of String, String) = _
+        '      New System.Collections.Generic.Dictionary(Of String, String)
+
+        '    psDict = PortalController.GetPortalSettingsDictionary(PortalId)
+
+        '    Dim strKeyName As String = "Shib_UserName"
+        '    Dim strKeyValue As String
+
+        '    If psDict.ContainsKey(strKeyName) Then
+        '        strKeyValue = psDict.Item(strKeyName)
+        '        Return Context.Request.ServerVariables(strKeyValue)
+        '    Else
+        '        Return "UserName NotFound"
+        '    End If
+
+        'End Function
+
+        Public Function GetShibUserName() As String
+
+            Dim psDict As System.Collections.Generic.Dictionary(Of String, String) = _
+              New System.Collections.Generic.Dictionary(Of String, String)
+
+            psDict = PortalController.GetPortalSettingsDictionary(portalID)
+
+            Dim strKeyName As String = "Shib_UserName"
+            Dim strKeyValue As String
+
+            If psDict.ContainsKey(strKeyName) Then
+                strKeyValue = psDict.Item(strKeyName)
+
+                If Not blnSimulateLogin Then
+                    Return Context.Request.ServerVariables(strKeyValue)
                 Else
-                    Return Nothing
+
+                    If ShibTestDataUserProperties IsNot Nothing Then
+                        If ShibTestDataUserProperties.ContainsKey(strKeyValue) Then
+                            Return ShibTestDataUserProperties.Item(strKeyValue)
+                            'strValue = psDict.Item(strKeyName)
+                        Else
+                            Return ""
+                        End If
+                    Else
+                        ReadInShibbolethSimData()
+                        If ShibTestDataUserProperties.ContainsKey(strKeyValue) Then
+                            Return ShibTestDataUserProperties.Item(strKeyValue)
+                        Else : Return ""
+                        End If
+                    End If
+                End If
+
+            Else
+                Return "UserName NotFound"
+            End If
+
+
+        End Function
+
+        Public Function GetTestCaseUserName() As String
+
+            'read thru dictionary ShibTestDataUserProperties 
+            'which has been built from calling sub ReadInShibbolethSimulationData()
+            'ShibTestUserProperties is a dictionary of (string, string) where 
+            'each item contains key,value pair of key: Header Variable Name, value: Header Variable Value
+
+            If ShibTestDataUserProperties IsNot Nothing Then
+                If ShibTestDataUserProperties.ContainsKey("HTTP_EPPN") Then
+                    Return ShibTestDataUserProperties.Item("HTTP_EPPN")
+                    'strValue = psDict.Item(strKeyName)
+                Else
+                    Return ""
+                End If
+            Else
+                ReadInShibbolethSimData()
+                If ShibTestDataUserProperties.ContainsKey("HTTP_EPPN") Then
+                    Return ShibTestDataUserProperties.Item("HTTP_EPPN")
+                Else : Return ""
                 End If
             End If
 
         End Function
+
+        Public Sub ProcessShibHeaders()
+
+            Dim alShibHeaders As ArrayList = GetShibHeaders()
+
+            Dim objRequest As HttpRequest = Context.Request
+            Dim ShibHeaderInRow As ShibHeaderIn = New ShibHeaderIn
+            Dim sArray As String()
+            Dim sArrayList As ArrayList = New ArrayList
+
+            Dim hdrArray As ArrayList = New ArrayList
+
+            If Not blnSimulateLogin Then 'process as regular Shibboleth signon
+
+                'For Each Header As String In objRequest.Headers
+                For Each Header As String In objRequest.ServerVariables
+                    For Each ShibHeaderInRow In alShibHeaders
+
+                        If ShibHeaderInRow.HeaderName.ToUpper = Header.ToUpper Then
+
+                            Dim ShibHeaderArrayInRow As ShibHeaderArraysIn = New ShibHeaderArraysIn
+
+                            sArray = Split(objRequest.ServerVariables.Item(ShibHeaderInRow.HeaderName), ShibHeaderInRow.HeaderDelimiter)
+
+                            'sArray = Split(Header, ShibHeaderInRow.HeaderDelimiter)
+
+
+                            For Each sItem As String In sArray
+                                sArrayList.Add(sItem)
+                            Next
+
+                            ShibHeaderArrayInRow.ShibHeaderName = Header
+                            ShibHeaderArrayInRow.ShibHeaderVariables = sArrayList
+
+                            hdrArray.Add(ShibHeaderArrayInRow)
+
+                        End If
+
+                    Next
+
+                Next Header
+
+                alShibHeaderArrays = hdrArray
+
+            Else
+                'process as Shib login simulation'
+                'ReadInShibbolethSimulationData will load up alADGroups, alPSRoles and alShibTestDataUserProperties arraylists
+                'and also load up ShibTestDataUserProperties dictionary
+
+                ReadInShibbolethSimData()
+            End If
+
+        End Sub
+
+        'Public Sub ProcessHeaders()
+
+        '    If Not blnSimulateLogin Then 'process as regular Shibboleth signon
+
+        '        Dim objRequest As HttpRequest = Context.Request
+
+        '        For Each Header As String In objRequest.Headers
+
+        '            Select Case Header.ToUpper
+        '                Case "UFAD_GROUPS"
+        '                    'alADGroups = OutputArray(Header, ";")
+        '                Case "UFAD_PSROLES"
+        '                    'alPSRoles = OutputArray(Header, "$")
+        '                Case "HTTPS_SERVER_ISSUER", "HTTPS_SERVER_SUBJECT", "CERT_SERVER_SUBJECT", "CERT_SERVER_ISSUER"
+
+        '                Case "ALL_HTTP", "ALL_RAW"
+
+        '                Case Else
+
+        '                    If objRequest.Headers.Item(Header) = "" Then
+        '                        'Me.Page.Response.Write(" (blank)<br><br>")
+        '                    Else
+        '                        'Me.Page.Response.Write("<br>--> " & objRequest.Headers.Item(Header) & "<br><br>")
+        '                    End If
+
+        '            End Select
+
+        '        Next Header
+        '    Else 'process as Shib login simulation'
+        '        'ReadInShibbolethSimulationData will load up alADGroups, alPSRoles and alShibTestDataUserProperties arraylists
+        '        'and also load up ShibTestDataUserProperties dictionary
+        '        ReadInShibbolethSimData()
+
+        '    End If
+        'End Sub
+
+        Public Function BuildUserInfo() As ArrayList
+
+            Dim config As ShibConfiguration = ShibConfiguration.GetConfig()
+
+            If ShibTestDataUserProperties Is Nothing And blnSimulateLogin Then
+                'ReadInShibbolethSimulationData()
+                ReadInShibbolethSimData()
+            End If
+            'read portal settings and read in each UserInfo value, value by value and add it to the UserInfoProperties array.
+
+            'get all of the portal settings for the current portal and read them into a dictionary field 
+
+            Dim alUserInfo As ArrayList = New ArrayList
+
+            Dim psDict As System.Collections.Generic.Dictionary(Of String, String) = _
+              New System.Collections.Generic.Dictionary(Of String, String)
+            ShibConfiguration.ResetConfig()
+            psDict = PortalController.GetPortalSettingsDictionary(portalID)
+
+            Dim strKeyName As String 'portal settings key field
+            Dim strArray As Array
+            Dim strValue As String   'portal settings value field
+            Dim strSource As String 'portal settings source field
+            Dim uiCount As Integer 'counter for portal settings user Information values
+            Dim UIPropertiesRow As UIPropertiesIN = New UIPropertiesIN
+
+
+            'Go thru loop once for each role mapping
+            For i = 1 To psDict.Count
+                strKeyName = "Shib_UserMap_" & i.ToString
+                If psDict.ContainsKey(strKeyName) Then
+                    uiCount = i
+                Else
+                    Exit For
+                End If
+            Next
+            For i = 1 To uiCount
+
+                strKeyName = "Shib_UserMap_" & i.ToString
+
+                'read the values from the dictionary into the datatable, row by row
+                If psDict.Item(strKeyName) IsNot Nothing Then
+                    strValue = psDict.Item(strKeyName)
+
+                    strArray = strValue.Split(New Char() {config.Delimiter})
+
+                    UIPropertiesRow.FieldType = strArray(0)
+                    UIPropertiesRow.FieldName = strArray(1)
+                    strSource = strArray(2)
+                    If blnSimulateLogin Then
+                        UIPropertiesRow.FieldSource = GetUserAttributesFromTestData(strSource)
+                    Else
+                        UIPropertiesRow.FieldSource = Context.Request.ServerVariables(strSource)
+                    End If
+
+                    If UIPropertiesRow.FieldSource <> "" Then
+                        UIPropertiesRow.blnOverWrite = strArray(3)
+                        alUserInfo.Add(UIPropertiesRow)
+                    End If
+                Else
+                    Exit For
+                End If
+            Next
+
+            Return alUserInfo
+
+        End Function
+
+        Public Function GetUserAttributesFromTestData(ByVal strSource As String) As String
+
+            'read thru dictionary ShibTestDataUserProperties 
+            'which has been built from calling sub ReadInShibbolethSimulationData()
+            'ShibTestUserProperties is a dictionary of (string, string) where 
+            'each item contains key,value pair of key: Header Variable Name, value: Header Variable Value
+            If ShibTestDataUserProperties IsNot Nothing Then
+                If ShibTestDataUserProperties.ContainsKey(strSource) Then
+                    Return ShibTestDataUserProperties.Item(strSource)
+                Else : Return ""
+                End If
+            Else
+                ReadInShibbolethSimData()
+                If ShibTestDataUserProperties.ContainsKey(strSource) Then
+                    Return ShibTestDataUserProperties.Item(strSource)
+                Else : Return ""
+                End If
+            End If
+
+        End Function
+
+        Public Sub ReadInShibbolethSimData()
+
+            Dim alShibHeaderItems As ArrayList = GetShibHeaders()
+
+            Try
+
+                Dim TextLine As String = ""
+                Dim File_Name As String = DotNetNuke.Common.Globals.ApplicationMapPath + "\DesktopModules\AuthenticationServices\Shibboleth\" + "TestCase.txt"
+                Dim objReader As New System.IO.StreamReader(File_Name)
+                If System.IO.File.Exists(File_Name) = True Then
+
+                    ''''''''''''''''''''''''
+                    Dim strFileNameIn As String = objReader.ReadLine()
+                    Dim DataFileName As String = DotNetNuke.Common.Globals.ApplicationMapPath + "\DesktopModules\AuthenticationServices\Shibboleth\" + strFileNameIn
+                    Dim objReaderFileIn As New System.IO.StreamReader(DataFileName)
+
+                    ''''''''''''''''''''''''
+
+                    If System.IO.File.Exists(DataFileName) = True Then
+
+                        Dim i As Integer = 0
+                        Dim UIPropertiesRow As UIPropertiesIN = New UIPropertiesIN
+                        Dim strArray As Array
+
+                        Dim shHeaderArrays As ArrayList = New ArrayList
+
+                        Dim userAttributesIn As ArrayList = New ArrayList
+                        Dim userAttributesInRow As ShibUserAttributesIn = New ShibUserAttributesIn
+                        Dim ShibUserRolesInRow As ShibUserRolesIn = New ShibUserRolesIn
+                        ShibTestDataUserProperties = New System.Collections.Generic.Dictionary(Of String, String)
+                        Dim shibHeaderInRow As ShibHeaderIn = New ShibHeaderIn
+                        Dim ShibHeaderArraysInRow As ShibHeaderArraysIn = New ShibHeaderArraysIn
+
+                        Do While objReaderFileIn.Peek() <> -1
+
+                            'Dim RolesRow As RolesIN = New RolesIN
+                            Dim myUserName As String = ""
+
+                            Dim strIn As String = objReaderFileIn.ReadLine()
+                            If strIn = "" Then
+                                Exit Do
+                            End If
+                            Dim strInNext As String
+
+                            Dim strColPosn As Integer = strIn.IndexOf(":")
+                            Dim strHeaderItem As String = Left(strIn, strColPosn)
+                            Dim blnHeaderItemFound As Boolean = False
+
+                            ''''''''''''''''''''''''''''''
+                            For Each shibHeaderInRow In alShibHeaderItems
+
+                                Dim ShibHeaderArraysInRoles As ArrayList = New ArrayList
+                                ShibHeaderArraysInRow.ShibHeaderVariables = ShibHeaderArraysInRoles
+
+                                If shibHeaderInRow.HeaderName = strHeaderItem Then
+                                    blnHeaderItemFound = True
+                                    ShibHeaderArraysInRow.ShibHeaderName = shibHeaderInRow.HeaderName
+                                    strInNext = strIn.Replace(shibHeaderInRow.HeaderName & ":", "")
+                                    Dim strDel As String = shibHeaderInRow.HeaderDelimiter
+                                    strArray = strInNext.Split(strDel)
+                                    For Each strGroup As String In strArray
+                                        ShibHeaderArraysInRow.ShibHeaderVariables.Add(strGroup)
+                                    Next
+                                    Exit For
+                                End If
+                            Next
+                            If blnHeaderItemFound Then
+                                shHeaderArrays.Add(ShibHeaderArraysInRow)
+                            Else
+
+                                'if line wasn't a HeaderItem type then you're processing a user attribute
+
+                                strArray = strIn.Split(New Char() {":"c})
+                                userAttributesInRow.ShibHeaderVariableName = strArray(0)
+                                userAttributesInRow.ShibHeaderVariableValue = strArray(1)
+                                userAttributesIn.Add(userAttributesInRow)
+                                ShibTestDataUserProperties.Add(strArray(0), strArray(1))
+                            End If
+                        Loop
+
+                        alShibHeaderArrays = shHeaderArrays
+                        alShibTestDataUserProperties = userAttributesIn
+                        objReaderFileIn.Close()
+
+                    Else
+                        objReader.Close()
+                        HttpContext.Current.Response.Write("Shibboleth Simulation requires file which was not found. File specified in TestCase.txt Not Found.")
+                    End If
+                Else
+                    HttpContext.Current.Response.Write("Shibboleth Simulation requires file which was not found. TestCase.txt File Not Found.")
+                End If
+
+            Catch ex As Exception
+                HttpContext.Current.Response.Write("Error processing Shibboleth Simulation data.")
+            End Try
+
+        End Sub
+
+        Public Function GetShibHeaders() As ArrayList
+
+            Dim config As ShibConfiguration = ShibConfiguration.GetConfig()
+
+            Dim strKeyName As String
+            Dim hdrCount As Integer
+            Dim strValue As String
+            Dim strArray As Array
+
+            Dim alShHeaders As ArrayList = New ArrayList
+            alShHeaders.Clear()
+
+            Dim shibHeaderInRow As ShibHeaderIn = New ShibHeaderIn
+
+            Dim psDict As System.Collections.Generic.Dictionary(Of String, String) = _
+              New System.Collections.Generic.Dictionary(Of String, String)
+            ShibConfiguration.ResetConfig()
+            psDict = PortalController.GetPortalSettingsDictionary(portalID)
+
+            'Go thru loop once for each shib header item
+            For i = 1 To psDict.Count
+                strKeyName = "Shib_HeaderItem_" & i.ToString
+                If psDict.ContainsKey(strKeyName) Then
+                    hdrCount = i
+                Else
+                    Exit For
+                End If
+            Next
+            For i = 1 To hdrCount
+
+                strKeyName = "Shib_HeaderItem_" & i.ToString
+
+                'read the values from the dictionary into the datatable, row by row
+                If psDict.Item(strKeyName) IsNot Nothing Then
+                    strValue = psDict.Item(strKeyName)
+
+                    strArray = strValue.Split(config.Delimiter)
+
+                    shibHeaderInRow.HeaderName = strArray(0)
+                    shibHeaderInRow.HeaderDelimiter = strArray(1)
+                    alShHeaders.Add(shibHeaderInRow)
+                Else
+                    Exit For
+                End If
+            Next
+
+            Return alShHeaders
+
+        End Function
+
+
+        'Public Function OutputArray(ByVal sHeader As String, ByVal sDelimiter As String) As ArrayList
+
+        '    Dim al As ArrayList
+        '    Dim objRequest As HttpRequest = Context.Request
+        '    Dim sArray As String()
+        '    Dim sArrayList As ArrayList = New ArrayList
+
+        '    sArray = Split(objRequest.Headers.Item(sHeader), sDelimiter)
+        '    For Each sItem As String In sArray
+        '        sArrayList.Add(sItem)
+        '    Next
+        '    If sHeader.ToUpper = "UFAD_GROUPS" Then
+        '        al = sArrayList
+        '        Return al
+        '    Else
+        '        If sHeader.ToUpper = "UFAD_PSROLES" Then
+        '            al = sArrayList
+        '            Return al
+        '        Else
+        '            Return Nothing
+        '        End If
+        '    End If
+
+        'End Function
 
         ReadOnly Property IsReusable() As Boolean Implements IHttpHandler.IsReusable
             Get
                 Return False
             End Get
         End Property
+
+        ''' <summary>
+        ''' Code to get portal settings
+        ''' </summary>
+        ''' <param name="portalId"></param>
+        ''' <returns></returns>
+        ''' <remarks></remarks>
 
         Public Shared Function CreateNewPortalSettings(ByVal portalId As Integer) As DotNetNuke.Entities.Portals.PortalSettings
             'new settings object
