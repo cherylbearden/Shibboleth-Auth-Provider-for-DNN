@@ -36,7 +36,7 @@ Imports System.Net
 Imports System.Security
 Imports DNNUserInfo = DotNetNuke.Entities.Users.UserInfo
 Imports DotNetNuke.Security.Membership
-Imports System.Web.Services
+'Imports System.Web.Services
 Imports System.Collections.Specialized
 Imports System.Web.Security
 Imports DotNetNuke.Common

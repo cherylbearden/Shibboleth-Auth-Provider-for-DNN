@@ -18,49 +18,21 @@
 '
 
 Imports System.Web
-Imports System.Web.Services
 
-Imports System.Collections.Specialized
-Imports System.Web.Security
 
-Imports DotNetNuke.Common
-Imports DotNetNuke.Common.Utilities
-Imports DotNetNuke.Entities.Modules
-Imports DotNetNuke.Entities.Portals
-Imports DNNUserController = DotNetNuke.Entities.Users.UserController
 Imports DNNUserInfo = DotNetNuke.Entities.Users.UserInfo
+Imports DotNetNuke.Common.Utilities
+Imports DotNetNuke.Entities.Portals
 
+Imports DotNetNuke.Entities.Users
+Imports DotNetNuke.Security
 Imports DotNetNuke.Security.Membership
 Imports DotNetNuke.Services.Authentication
-Imports DotNetNuke.Services.Localization
-Imports DotNetNuke.UI.Skins.Controls.ModuleMessage
-Imports DotNetNuke.UI.WebControls
-Imports DotNetNuke.Security
-Imports System.Data
-Imports DotNetNuke.Entities.Profile
-Imports DotNetNuke.Entities.Users
 
-Imports System.Collections.Generic
-Imports System.IO
-Imports DotNetNuke.Services.Messaging.Data
 
-Imports DotNetNuke.Services.Mail
-Imports DotNetNuke.UI.UserControls
-Imports DotNetNuke.Security.Permissions
-Imports DotNetNuke.Entities.Host
-Imports UF.Research.Authentication.Shibboleth
 
-Imports UF.Research.Authentication.Shibboleth.SHIB
-Imports System
-Imports System.Web.UI.Control
 
-Imports System.Web.UI
-Imports DotNetNuke
-Imports DotNetNuke.Common.Globals
-Imports System.Net
-Imports System.Security
 
-Imports DotNetNuke.Entities.Tabs
 
 
 Namespace UF.Research.Authentication.Shibboleth

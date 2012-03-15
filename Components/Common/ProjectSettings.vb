@@ -15,48 +15,21 @@
 ' CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 ' DEALINGS IN THE SOFTWARE.
 
-Imports DotNetNuke.Entities.Portals
 Imports System.Web
-Imports System.Web.Services
+Imports DotNetNuke.Entities.Portals
 
-Imports System.Collections.Specialized
-Imports System.Web.Security
 
 Imports DotNetNuke.Common
 Imports DotNetNuke.Common.Utilities
-Imports DotNetNuke.Entities.Modules
-Imports DNNUserController = DotNetNuke.Entities.Users.UserController
-Imports DNNUserInfo = DotNetNuke.Entities.Users.UserInfo
 
-Imports DotNetNuke.Security.Membership
-Imports DotNetNuke.Services.Authentication
 Imports DotNetNuke.Services.Localization
-Imports DotNetNuke.UI.Skins.Controls.ModuleMessage
-Imports DotNetNuke.UI.WebControls
-Imports DotNetNuke.Security
-Imports System.Data
-Imports DotNetNuke.Entities.Profile
-Imports DotNetNuke.Entities.Users
 
-Imports System.Collections.Generic
 Imports System.IO
-Imports DotNetNuke.Services.Messaging.Data
 
-Imports DotNetNuke.Services.Mail
-Imports DotNetNuke.UI.UserControls
-Imports DotNetNuke.Security.Permissions
-Imports DotNetNuke.Entities.Host
-Imports UF.Research.Authentication.Shibboleth
 
 Imports UF.Research.Authentication.Shibboleth.SHIB
-Imports System
-Imports System.Web.UI.Control
 
-Imports System.Web.UI
-Imports DotNetNuke
 Imports DotNetNuke.Common.Globals
-Imports System.Net
-Imports System.Security
 
 Imports DotNetNuke.Entities.Tabs
 

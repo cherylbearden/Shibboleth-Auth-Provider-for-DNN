@@ -57,36 +57,14 @@
       <HintPath>..\Website\bin\DotNetNuke.Membership.DataProvider.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="DotNetNuke.Web">
-      <HintPath>..\Website\bin\DotNetNuke.Web.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetNuke.WebControls">
-      <HintPath>..\Website\bin\DotNetNuke.WebControls.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetNuke.WebUtility">
-      <HintPath>..\Website\bin\DotNetNuke.WebUtility.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.ApplicationBlocks.Data">
-      <HintPath>..\Website\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.EnterpriseServices" />
-    <Reference Include="System.Management" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Web.Extensions.Design" />
-    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Telerik.Web.Design, Version=2010.1.519.35, Culture=neutral, PublicKeyToken=121fae78165ba3d4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Library\Components\Telerik\bin\Telerik.Web.Design.dll</HintPath>
-    </Reference>
     <Reference Include="Telerik.Web.UI, Version=2010.1.519.35, Culture=neutral, PublicKeyToken=121fae78165ba3d4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Library\Components\Telerik\bin\Telerik.Web.UI.dll</HintPath>
@@ -227,6 +205,7 @@
     <Content Include="Default.aspx" />
     <Content Include="hvDetail.ascx" />
     <Content Include="libraries\DotNetNuke.dll" />
+    <Content Include="libraries\DotNetNuke.Membership.DataProvider.dll" />
     <Content Include="libraries\Telerik.Web.UI.dll" />
     <Content Include="Login.ascx">
       <SubType>ASPXCodeBehind</SubType>
