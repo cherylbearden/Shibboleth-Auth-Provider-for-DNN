@@ -49,43 +49,62 @@ Imports DotNetNuke.Entities.Users
 
 Namespace UF.Research.Authentication.Shibboleth.SHIB
 
+    Public Module Globals
+
+#Region "Public Constants"
+        Public Const ShibAlert As String = "SHIB_ALERT"
+#End Region
+
+    End Module
+
     Public Class Utilities
+
 
         Sub New()
         End Sub
+        Public Shared Function LogTypeKeyInstalled(ByVal logTypeKey As String) As Boolean
+            Dim eventLogController = New DotNetNuke.Services.Log.EventLog.EventLogController()
+            Dim logTypes = New List(Of DotNetNuke.Services.Log.EventLog.LogTypeInfo)(eventLogController.GetLogTypeInfo().Cast(Of DotNetNuke.Services.Log.EventLog.LogTypeInfo)())
+            Return logTypes.Any(Function(lt) lt.LogTypeKey = logTypeKey)
+        End Function
+        Public Shared Function CheckShibEventLogging() As Boolean
 
+            'http://msdn.microsoft.com/en-us/library/x0b5b5bc.aspx
 
-        Public Shared Function GetAllSHIBGroupnames() As ArrayList
+            If Not LogTypeKeyInstalled(ShibAlert) Then
+                Return False
+            Else
+                Dim logTypeConfigInfo As DotNetNuke.Services.Log.EventLog.LogTypeConfigInfo
+                Dim eventLogController = New DotNetNuke.Services.Log.EventLog.EventLogController()
+                Dim logConfigTypes = New List(Of DotNetNuke.Services.Log.EventLog.LogTypeConfigInfo)(eventLogController.GetLogTypeConfigInfo().Cast(Of DotNetNuke.Services.Log.EventLog.LogTypeConfigInfo)())
+                logTypeConfigInfo = logConfigTypes.Find(AddressOf FindLogConfigID)
+                Return logTypeConfigInfo.LoggingIsActive
+            End If
+        End Function
+
+        Public Shared Function FindLogConfigID(ByVal logInfo As DotNetNuke.Services.Log.EventLog.LogTypeConfigInfo) As Boolean
+            If logInfo.LogTypeKey = ShibAlert Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        Public Shared Function GetLoggedOnUserName() As String
+
+            Dim _config As ShibConfiguration = ShibConfiguration.GetConfig()
+
+            Dim blnSimulateShibLogin As Boolean
+            blnSimulateShibLogin = _config.SimulateLogin
 
             Dim sh As ShibHandler = New ShibHandler
-            Dim LoggedOnUserName As String = sh.EPPN
 
-            Dim alGroupNames As ArrayList = sh.AdGroups
-            Dim alGroupNames_A As ArrayList = New ArrayList
-            For Each group As String In alGroupNames
-                alGroupNames_A.Add(group)
-            Next
-            Return alGroupNames_A
+            Return sh.userName
 
         End Function
 
-        Public Shared Function GetAllSHIBRolenames() As ArrayList
 
-            Dim sh As ShibHandler = New ShibHandler
-
-            Dim LoggedOnUserName As String = sh.EPPN
-
-            Dim alRoleNames As ArrayList = sh.PSRoles
-            Dim alRoleNames_P As ArrayList = New ArrayList
-            For Each role As String In alRoleNames
-                alRoleNames_P.Add(role)
-            Next
-            Return alRoleNames_P
-
-        End Function
-
-
-        Public Shared Function GetUser(ByVal Name As String) As ShibUserInfo
+        Public Shared Function GetUser() As ShibUserInfo
             Dim objUserInfo As ShibUserInfo = New ShibUserInfo
 
             Return objUserInfo
@@ -105,44 +124,30 @@ Namespace UF.Research.Authentication.Shibboleth.SHIB
             Return Convert.ToString(rd.Next)
         End Function
 
-        Public Shared Function GetPSRoles(ByVal Name As String) As ArrayList
 
-            Dim sh As ShibHandler = New ShibHandler
-            Dim LoggedOnUserName As String = sh.EPPN
+        'Public Shared Function GetIP4Address(ByVal strPassedIP As String) As String
+        '    Dim IP4Address As String = String.Empty
 
-            Dim alPSRoles As ArrayList = sh.PSRoles
-            Dim alPSRoles_P As ArrayList = New ArrayList
-            For Each role As String In alPSRoles
-                role = "P_" & role
-                alPSRoles_P.Add(role)
-            Next
-            Return alPSRoles_P
+        '    For Each IPA As IPAddress In Dns.GetHostAddresses(strPassedIP)
+        '        If IPA.AddressFamily.ToString() = "InterNetwork" Then
+        '            IP4Address = IPA.ToString()
+        '            Exit For
+        '        End If
+        '    Next
 
-        End Function
+        '    If IP4Address <> String.Empty Then
+        '        Return IP4Address
+        '    End If
 
-        Public Shared Function GetIP4Address(ByVal strPassedIP As String) As String
-            Dim IP4Address As String = String.Empty
+        '    For Each IPA As IPAddress In Dns.GetHostAddresses(Dns.GetHostName())
+        '        If IPA.AddressFamily.ToString() = "InterNetwork" Then
+        '            IP4Address = IPA.ToString()
+        '            Exit For
+        '        End If
+        '    Next
 
-            For Each IPA As IPAddress In Dns.GetHostAddresses(strPassedIP)
-                If IPA.AddressFamily.ToString() = "InterNetwork" Then
-                    IP4Address = IPA.ToString()
-                    Exit For
-                End If
-            Next
-
-            If IP4Address <> String.Empty Then
-                Return IP4Address
-            End If
-
-            For Each IPA As IPAddress In Dns.GetHostAddresses(Dns.GetHostName())
-                If IPA.AddressFamily.ToString() = "InterNetwork" Then
-                    IP4Address = IPA.ToString()
-                    Exit For
-                End If
-            Next
-
-            Return IP4Address
-        End Function
+        '    Return IP4Address
+        'End Function
 
         Public Shared Function GetCurrentTrustLevel() As AspNetHostingPermissionLevel
             For Each trustLevel As AspNetHostingPermissionLevel In New AspNetHostingPermissionLevel() {AspNetHostingPermissionLevel.Unrestricted, AspNetHostingPermissionLevel.High, AspNetHostingPermissionLevel.Medium, AspNetHostingPermissionLevel.Low, AspNetHostingPermissionLevel.Minimal}

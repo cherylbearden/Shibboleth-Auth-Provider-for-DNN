@@ -47,6 +47,7 @@ Imports Telerik.Web
 Imports System.Globalization
 Imports DotNetNuke.Common.Utilities
 Imports DotNetNuke.Entities.Modules.Actions
+Imports UF.Research.Authentication.Shibboleth.SHIB
 
 
 Namespace UF.Research.Authentication.Shibboleth
@@ -55,23 +56,35 @@ Namespace UF.Research.Authentication.Shibboleth
         'Inherits System.Web.UI.UserControl
         Inherits DotNetNuke.Services.Authentication.AuthenticationSettingsBase
 
+        Dim _PortalSettings As PortalSettings
+
+        Private Sub Page_Init(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Init
+            ' Obtain PortalSettings from controller
+            _PortalSettings = CType(HttpContext.Current.Items("PortalSettings"), PortalSettings)
+        End Sub
 
         Public Overrides Sub UpdateSettings()
 
-            Dim _portalSettings As PortalSettings = CType(HttpContext.Current.Items("PortalSettings"), PortalSettings)
             Dim strLogoutPage As String = Me.ddlLogoutPage.SelectedValue
             Dim strLoginPage As String = Me.ddlLoginPage.SelectedValue
             Try
                 If strLogoutPage Is Nothing Then
-                    strLogoutPage = "home.aspx"
+                    'cb_062711
+                    'strLogoutPage = "home.aspx"
+                    strLogoutPage = "default.aspx"
                 End If
                 If strLoginPage Is Nothing Then
-                    strLogoutPage = "home.aspx"
+                    'cb_062711
+                    'strLogoutPage = "home.aspx"
+                    strLogoutPage = "default.aspx"
                 End If
 
-                'ShibConfiguration.UpdateConfig(_portalSettings.PortalId, Me.chkEnabled.Checked, Me.chkAutoCreateUsers.Checked, Me.chkSynchronizeRoles.Checked, Me.txtDelimiter.Text, Me.ddlLogoutPage.SelectedValue, Me.ddlLoginPage.SelectedValue)
-
-                ShibConfiguration.UpdateConfig(_portalSettings.PortalId, Me.chkEnabled.Checked, Me.chkAutoCreateUsers.Checked, Me.chkSynchronizeRoles.Checked, Me.txtDelimiter.Text, strLogoutPage, strLoginPage)
+                'currently we have the delimiter field disabled, so set it to "|" if it has nothing in it. 
+                If Me.txtDelimiter.Text = "" Then
+                    Me.txtDelimiter.Text = "|"
+                End If
+               
+                ShibConfiguration.UpdateConfig(_portalSettings.PortalId, Me.chkEnabled.Checked, Me.chkAutoCreateUsers.Checked, Me.chkSynchronizeRoles.Checked, Me.txtDelimiter.Text, strLogoutPage, strLoginPage, Me.chkSimulateLogin.Checked)
 
                 'the configuration is cached.  If you change the portal_settings table, the cache
                 'will not be rebuilt and your test may fail.  If you use the settings module to 
@@ -88,10 +101,12 @@ Namespace UF.Research.Authentication.Shibboleth
 
             Try
 
+                AddShibLogTypes()
+
                 ' Obtain PortalSettings from controller
-                Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
 
                 ' Reset config
+
                 ShibConfiguration.ResetConfig()
                 Dim config As ShibConfiguration = ShibConfiguration.GetConfig()
 
@@ -107,14 +122,16 @@ Namespace UF.Research.Authentication.Shibboleth
                         chkSynchronizeRoles.Checked = psDict.Item("Shib_SynchronizeRoles")
                         chkAutoCreateUsers.Checked = psDict.Item("Shib_AutoCreateUsers")
                         txtDelimiter.Text = psDict.Item("Shib_Delimiter")
+                        chkSimulateLogin.Checked = psDict.Item("Shib_SimulateLogin")
 
                     Else
 
                         'set current configuration into the form controls for user display
-                        chkEnabled.Checked = config.ShibbolethAuthProvider
+                        chkEnabled.Checked = config.Enabled
                         chkSynchronizeRoles.Checked = config.SynchronizeRoles
                         chkAutoCreateUsers.Checked = config.AutoCreateUsers
                         txtDelimiter.Text = config.Delimiter
+                        chkSimulateLogin.Checked = config.SimulateLogin
 
                     End If
                 End If
@@ -155,17 +172,51 @@ Namespace UF.Research.Authentication.Shibboleth
             'Label1.Text = String.Format("<span>{0}</span>", text)
         End Sub
 
-        Private Sub SetMessage(ByVal message As String)
-            gridMessage = message
-        End Sub
+        'Private Sub SetMessage(ByVal message As String)
+        '    gridMessage = message
+        'End Sub
 
-        Private gridMessage As String = Nothing
+        'Private gridMessage As String = Nothing
 
         Protected Sub Button_Click(ByVal sender As Object, ByVal e As EventArgs)
+
             Dim btn As Button = CType(sender, Button)
             Dim editFormItem As GridEditFormItem = CType(btn.NamingContainer, GridEditFormItem) ' access the EditFormItem
             Dim txtbx As TextBox = CType(editFormItem.FindControl("Textbox"), TextBox)
             Dim upload As FileUpload = CType(editFormItem.FindControl("FileUpload"), FileUpload)
+        End Sub
+
+        Private Sub AddShibLogTypes()
+
+            If Not Utilities.LogTypeKeyInstalled(ShibAlert) Then
+                ' Perform add operation for custom log type
+
+                'Dim logController = New LogController()
+                Dim logController = New DotNetNuke.Services.Log.EventLog.EventLogController()
+                'DotNetNuke.Services.Log.EventLog.EventLogController()
+                Dim logTypeInfo = New DotNetNuke.Services.Log.EventLog.LogTypeInfo
+
+                logTypeInfo.LogTypeCSSClass = "GeneralAdminOperation"
+                logTypeInfo.LogTypeDescription = "Shibboleth Logging"
+                logTypeInfo.LogTypeFriendlyName = ShibAlert
+                logTypeInfo.LogTypeOwner = "DotNetNuke.Logging.EventLogType"
+                logTypeInfo.LogTypeKey = ShibAlert ' Pick unique key name
+                logController.AddLogType(logTypeInfo)
+
+                'Dim hc As DotNetNuke.Entities.Controllers.HostController
+
+                Dim logTypeConfigInfo = New DotNetNuke.Services.Log.EventLog.LogTypeConfigInfo
+                logTypeConfigInfo.LogTypeKey = ShibAlert
+                logTypeConfigInfo.LoggingIsActive = False
+                'http://www.dotnetnukeru.com/dnndocs/api/html/P_DotNetNuke_Entities_Portals_PortalSettings_HostSettings.htm
+                logTypeConfigInfo.MailFromAddress = DotNetNuke.Entities.Host.Host.HostEmail
+                logTypeConfigInfo.MailToAddress = DotNetNuke.Entities.Host.Host.HostEmail
+                logTypeConfigInfo.EmailNotificationIsActive = False
+                logController.AddLogTypeConfigInfo(logTypeConfigInfo)
+
+                DataCache.ClearHostCache(True)
+            End If
+
         End Sub
 
     End Class

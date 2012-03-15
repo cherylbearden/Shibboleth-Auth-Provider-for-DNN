@@ -17,6 +17,7 @@
 ' CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 ' DEALINGS IN THE SOFTWARE.
 '
+Imports System.Collections
 
 Namespace UF.Research.Authentication.Shibboleth
 
@@ -30,10 +31,12 @@ Namespace UF.Research.Authentication.Shibboleth
             mProviderTypeName = _config.ProviderTypeName
         End Sub
 
-        Public Function GetGroups(ByVal strRG As String) As ArrayList
-            Return ShibAuthenticationProvider.Instance(mProviderTypeName).GetGroups(strRG)
+        Public Function GetGroups(ByVal oRoleGroup As Object) As ArrayList
+            Return ShibAuthenticationProvider.Instance(mProviderTypeName).GetGroups(oRoleGroup)
         End Function
-
+        Public Function GetAllGroups(ByVal oRoleGroup As Object) As ArrayList
+            Return ShibAuthenticationProvider.Instance(mProviderTypeName).GetAllGroups(oRoleGroup)
+        End Function
     End Class
 
 End Namespace

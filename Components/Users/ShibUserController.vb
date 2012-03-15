@@ -25,6 +25,7 @@ Imports DotNetNuke.Security
 Imports DotNetNuke.Security.Membership
 Imports DotNetNuke.Services.Exceptions
 Imports DotNetNuke.Security.Membership.Data
+Imports System.Collections
 
 Namespace UF.Research.Authentication.Shibboleth
 
@@ -62,117 +63,76 @@ Namespace UF.Research.Authentication.Shibboleth
                 'Get Portal information
                 Dim objPortals As New PortalController
                 Dim objPortal As PortalInfo = objPortals.GetPortal(PortalID)
+
                 'Get all portal roles that the user does belong to.
                 Dim objRoleController As New DotNetNuke.Security.Roles.RoleController
                 Dim arrUserRoles As String() = objRoleController.GetRolesByUser(AuthenticationUser.UserID, PortalID)
+
                 'Get all portal roles that correspond to an active directory group.
                 Dim objGroupController As New GroupController
-                'arrADGroups contains all AD Groups for the user that have roles defined in DNN
-                'arrPSRoles contains all PS Roles for the user that have roles defined in DNN
-                'If an AD Group or a PS role does not have a matching role name defined to DNN
-                'we don't care about it. 
-
-                Dim arrADGroups As ArrayList = objGroupController.GetGroups("ADGroups")
-                Dim arrPSRoles As ArrayList = objGroupController.GetGroups("PSRoles")
                
-                Dim arrCurrentRoles As New ArrayList
-                Dim arrCurrentGroups As New ArrayList
-                Dim arrAddToRole As New ArrayList
-               
-                'arrADGroups and arrPSRoles are of type GroupInfo and are built in
-                'ShibProvider.vb GetGroups.
+                Dim sh As ShibHandler = New ShibHandler
+                Dim alShibHeaderArrays As ArrayList = sh.ShibHeaderArrays
 
-                'Get the Groups the user belongs to that are also AD Groups from Shibboleth.
-                'Build arrCurrentGroups - an array list of roles corresponding to ADGroups
-                'by looping thru the current arrADGroups (which contains all 
-                'AD Groups defined for the user that have a corresponding DNN role defined)
-                'and adding the role for the user into arrCurrentGroups if the role name
-                'exists in arrUserRoles - the list of currently defined roles for the user
+                ''' do this once for each group and role type
 
-                'comparing arrADGroups and arrCurrentGroups:
-                'Whereas arrADGroups contains an array of all AD Groups for the user that are
-                'defined in DNN, arrCurrentGroups contains an array of all AD Groups for the 
-                'user that currently exist as roles for that user in DNN
+                For Each ShibHeaderArrayRow As ShibHandler.ShibHeaderArraysIn In alShibHeaderArrays
 
-                For Each authGroup As GroupInfo In arrADGroups
-                    If authGroup Is Nothing Then
-                    Else
-                        If Not (authGroup.RoleID = objPortal.AdministratorRoleId) Then
-                            mRoleName = authGroup.RoleName
-                            If Array.Exists(arrUserRoles, AddressOf RolesExists) Then
-                                arrCurrentGroups.Add(authGroup)
+                    Dim alShibHeaderNameIn As String = ShibHeaderArrayRow.ShibHeaderName
+                    Dim alShibHeaderVarsIn As ArrayList = ShibHeaderArrayRow.ShibHeaderVariables
+
+                    Dim alShibRoles As ArrayList = objGroupController.GetAllGroups(ShibHeaderArrayRow)
+                    Dim alShibRolesCurrent As ArrayList = objGroupController.GetGroups(ShibHeaderArrayRow)
+
+                    Dim arrCurrentRoles As New ArrayList
+                    Dim arrCurrentGroups As New ArrayList
+                    Dim arrAddToRole As New ArrayList
+
+                    For Each authGroup As GroupInfo In alShibRoles
+                        If authGroup Is Nothing Then
+                        Else
+                            If Not (authGroup.RoleID = objPortal.AdministratorRoleId) Then
+                                mRoleName = authGroup.RoleName
+                                If Array.Exists(arrUserRoles, AddressOf RolesExists) Then 'And mRoleName Then
+                                    arrCurrentGroups.Add(authGroup)
+                                End If
                             End If
                         End If
-                    End If
-                Next
+                    Next
 
-                'Get the Roles the user belongs to that are also PS Roles from Shibboleth.
-                'comparing arrPSRoles and arrCurrentRoles:
-                'Whereas arrPSGroups contains an array of all PS roles for the user that are
-                'defined in DNN, arrCurrentRoles contains an array of all PS Roles for the 
-                'user that currently exist as roles for that user in DNN
+                    ''Get the Roles the user belongs to that are also PS Roles from Shibboleth.
+                    ''comparing arrPSRoles and arrCurrentRoles:
+                    ''Whereas arrPSGroups contains an array of all PS roles for the user that are
+                    ''defined in DNN, arrCurrentRoles contains an array of all PS Roles for the 
+                    ''user that currently exist as roles for that user in DNN
 
-                For Each authRole As GroupInfo In arrPSRoles
-                    If authRole Is Nothing Then
-                    Else
-                        If Not (authRole.RoleID = objPortal.AdministratorRoleId) Then
-                            mRoleName = authRole.RoleName
-                            If Array.Exists(arrUserRoles, AddressOf RolesExists) Then
-                                arrCurrentRoles.Add(authRole)
+
+                    'Compare the CurrentRoles and Shibboleth Groups
+                    'If user belongs to Shib group but does not belong to DNN Role then add user to role.
+
+                    For Each authGroup As GroupInfo In alShibRoles
+                        If authGroup Is Nothing Then
+                        Else
+                            If Not (arrCurrentGroups.Contains(authGroup)) Then
+                                arrAddToRole.Add(authGroup) 'Add the Group
+                                objRoleController.AddUserRole(PortalID, AuthenticationUser.UserID, authGroup.RoleID, Date.Today, Null.NullDate)
+
                             End If
                         End If
-                    End If
-                Next
+                    Next
 
-                'Compare the CurrentRoles and Shibboleth Groups
-                'If user belongs to Shib group but does not belong to DNN Role then add user to role.
-
-                For Each authGroup As GroupInfo In arrADGroups
-                    If authGroup Is Nothing Then
-                    Else
-
-                        If Not (arrCurrentGroups.Contains(authGroup)) Then
-                            arrAddToRole.Add(authGroup) 'Add the Group
-                            objRoleController.AddUserRole(PortalID, AuthenticationUser.UserID, authGroup.RoleID, Date.Today, Null.NullDate)
+                    For Each authGroup As GroupInfo In alShibRoles
+                        'For Each authGroup As GroupInfo In arrCurrentGroups
+                        If authGroup Is Nothing Then
+                        Else
+                            If Not (alShibRolesCurrent.Contains(authGroup.RoleName)) Then
+                                objRoleController.DeleteUserRole(PortalID, AuthenticationUser.UserID, authGroup.RoleID)
+                            End If
 
                         End If
-                    End If
+                    Next
+
                 Next
-
-                For Each authGroup As GroupInfo In arrPSRoles
-                    If authGroup Is Nothing Then
-                    Else
-
-                        If Not (arrCurrentRoles.Contains(authGroup)) Then
-                            arrAddToRole.Add(authGroup) 'Add the Role
-                            objRoleController.AddUserRole(PortalID, AuthenticationUser.UserID, authGroup.RoleID, Date.Today, Null.NullDate)
-
-                        End If
-                    End If
-                Next
-
-                'Compare the CurrentRoles and Shibboleth Groups
-                'If user belongs to DNN Role but does not belong to the Shib role/group then remove the user from that Group
-                For Each authGroup As GroupInfo In arrCurrentGroups
-                    If authGroup Is Nothing Then
-                    Else
-                        If Not (arrADGroups.Contains(authGroup)) Then
-                            objRoleController.DeleteUserRole(PortalID, AuthenticationUser.UserID, authGroup.RoleID)
-                        End If
-
-                    End If
-                Next
-
-                For Each authGroup As GroupInfo In arrCurrentRoles
-                    If authGroup Is Nothing Then
-                    Else
-                        If Not (arrPSRoles.Contains(authGroup)) Then
-                            objRoleController.DeleteUserRole(PortalID, AuthenticationUser.UserID, authGroup.RoleID)
-                        End If
-
-                    End If
-                Next
-
 
             Catch exc As Exception
                 LogException(exc)

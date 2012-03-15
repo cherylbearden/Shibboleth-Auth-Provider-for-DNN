@@ -227,6 +227,8 @@
   <ItemGroup>
     <Content Include="Default.aspx" />
     <Content Include="hvDetail.ascx" />
+    <Content Include="libraries\DotNetNuke.dll" />
+    <Content Include="libraries\Telerik.Web.UI.dll" />
     <Content Include="Login.ascx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
@@ -239,9 +241,6 @@
     <Content Include="ViewRoleMappings.ascx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="libraries\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

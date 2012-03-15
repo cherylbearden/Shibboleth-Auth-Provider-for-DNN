@@ -19,6 +19,7 @@
 Imports System.Collections.Generic
 Imports System.Runtime.Serialization
 Imports DotNetNuke.Entities.Portals
+Imports System.Collections
 
 Namespace UF.Research.Authentication.Shibboleth
 
@@ -51,12 +52,11 @@ Namespace UF.Research.Authentication.Shibboleth
         Public Sub New(ByVal RMList As List(Of RoleMappingElement))
 
             Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
-            Dim PortalID As Integer = _portalSettings.PortalId
 
             Try
                 'Cambrian = DNN v5
                 Dim CambrianSettings As System.Collections.Generic.Dictionary(Of String, String) = _
-                    PortalController.GetPortalSettingsDictionary(PortalID)
+                    PortalController.GetPortalSettingsDictionary(_portalSettings.PortalId)
 
             Catch
             Finally
@@ -78,36 +78,6 @@ Namespace UF.Research.Authentication.Shibboleth
         End Function
 
 #Region "Public Methods"
-
-        'Public Overloads Sub Add(ByVal tab As TabInfo)
-        '    'Call base class to add to base Dictionary
-        '    Add(tab.TabID, tab)
-
-        '    If tab.ParentId = Null.NullInteger Then
-        '        'Add tab to Children collection
-        '        AddToChildren(tab)
-
-        '        'Add to end of List as all zero-level tabs are returned in order first
-        '        list.Add(tab)
-        '    Else
-        '        'Find Parent in list
-        '        For index As Integer = 0 To list.Count() - 1
-        '            Dim parentTab As TabInfo = list(index)
-        '            If parentTab.TabID = tab.ParentId Then
-        '                Dim childCount As Integer = AddToChildren(tab)
-
-        '                'Insert tab in master List
-        '                list.Insert(index + childCount, tab)
-        '            End If
-        '        Next
-        '    End If
-        'End Sub
-
-        'Public Sub AddRange(ByVal RMList As List(Of RoleMappingElement))
-        '    For Each RMElement As RoleMappingElement In RMList
-        '        Add(RMElement)
-        '    Next
-        'End Sub
 
         Public Function AsList() As List(Of RoleMappingElement)
             Return list

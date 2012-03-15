@@ -78,20 +78,19 @@
                         <asp:Label ID="lblShibRoleName" runat="server" Text="Shibboleth Role Name: " width="120px"></asp:Label>
                     </td>
                     <td>
-                          <asp:TextBox id="txtSHIBRoleName" runat="server" Width="50%"
+                          <asp:TextBox id="txtSHIBRoleName" runat="server" TextMode="MultiLine" width="500px"
                         Text='<%# DataBinder.Eval( Container, "DataItem.ShibRoleName" ) %>' Visible="true">
                         </asp:textbox>
                     </td>
+                    
                     <td> 
-                        <asp:TextBox id="txtSHIBRName" runat="server" Width="50%"
+                        <asp:TextBox id="txtSHIBRName" runat="server" Width="50%" 
                         Text='<%# DataBinder.Eval( Container, "DataItem.ShibRoleName" ) %>' Visible="false">
                         </asp:textbox>
                     </td>
                 </tr>
-                
                
-                 
-                 <tr>
+                <tr>
                     <td>
                         <asp:Label ID="Label2" runat="server" Text=" " width="5%"></asp:Label>
                    

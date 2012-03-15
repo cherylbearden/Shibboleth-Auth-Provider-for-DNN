@@ -27,6 +27,7 @@ Namespace UF.Research.Authentication.Shibboleth
 
 #Region "Private Members"
 
+        Private _ShibConfiguration As ShibConfiguration
         Private _ShibRoleName As String
         Private _Delimiter As String
         Private _DNNRoleName As String
@@ -36,6 +37,7 @@ Namespace UF.Research.Authentication.Shibboleth
 #Region "Constructors"
 
         Public Sub New()
+            _ShibConfiguration = ShibConfiguration.GetConfig()
             _ShibRoleName = ""
             _Delimiter = ""
             _DNNRoleName = ""
@@ -47,9 +49,9 @@ Namespace UF.Research.Authentication.Shibboleth
 
         Public Property ShibRoleName() As String
             Get
-                _ShibRoleName = GetShibRoleName()
-                Return _ShibRoleName
+                Return GetRoleName("SHIB")
             End Get
+
             Set(ByVal value As String)
                 _ShibRoleName = value
             End Set
@@ -66,7 +68,7 @@ Namespace UF.Research.Authentication.Shibboleth
 
         Public Property DNNRoleName() As String
             Get
-                _DNNRoleName = GetDNNRoleName()
+                _DNNRoleName = GetRoleName("DNN")
                 Return _DNNRoleName
             End Get
             Set(ByVal value As String)
@@ -78,21 +80,21 @@ Namespace UF.Research.Authentication.Shibboleth
 
 #Region "Private Methods"
 
-        'this function will return the Shibboleth Role Name
-        Private Function GetShibRoleName() As String
-            Dim shibRoleName As String = String.Empty
-            Dim stringIn As String = Me.ToString
-            Dim intDelPos As Integer = InStr(stringIn, ";")
-            shibRoleName = Left(stringIn, intDelPos - 1)
-            Return shibRoleName
-        End Function
+        ''this function will return the Shibboleth or DNN Role Name based on the value of strRoleType passed in
+        Private Function GetRoleName(ByVal strRoleType As String) As String
 
-        Private Function GetDNNRoleName() As String
-            Dim DNNRoleName As String = String.Empty
-            Dim stringIn As String = Me.ToString
-            Dim intDelPos As Integer = InStr(stringIn, ";")
-            DNNRoleName = Mid(stringIn, intDelPos)
-            Return DNNRoleName
+            Dim shibRoleName As String = String.Empty
+
+            Dim sArray As Array = Split(Me.ToString, _ShibConfiguration.Delimiter)
+            shibRoleName = sArray(0)
+            DNNRoleName = sArray(1)
+
+            If strRoleType.ToUpper = "SHIB" Then
+                Return sArray(0)
+            Else
+                Return sArray(1)
+            End If
+
         End Function
 
 #End Region
