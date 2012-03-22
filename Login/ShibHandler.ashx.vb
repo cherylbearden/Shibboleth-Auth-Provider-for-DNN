@@ -137,7 +137,7 @@ Namespace UF.Research.Authentication.Shibboleth
             Get
                 If Not blnSimulateLogin Then
                     Return GetShibUserName()
-                    
+
                 Else
                     'Return GetTestCaseUserName()
                     Return GetShibUserName()
@@ -286,7 +286,7 @@ Namespace UF.Research.Authentication.Shibboleth
             End If
 
             objEventLog.AddLog("ShibHandler_ProcessRequest3", "Portal Settings Created. - ShibHandler_ProcessRequest1", PortalSettings, -1, ShibAlert)
-          
+
             blnSimulateLogin = config.SimulateLogin ' TODO - move this to a singleton instance.
 
             ' TODO - why are we creating a second instance of the request?
@@ -427,7 +427,7 @@ Namespace UF.Research.Authentication.Shibboleth
             Dim psDict As System.Collections.Generic.Dictionary(Of String, String) = _
               New System.Collections.Generic.Dictionary(Of String, String)
 
-            psDict = PortalController.GetPortalSettingsDictionary(portalID)
+            psDict = PortalController.GetPortalSettingsDictionary(PortalId)
 
             Dim strKeyName As String = "Shib_UserName"
             Dim strKeyValue As String
@@ -592,7 +592,7 @@ Namespace UF.Research.Authentication.Shibboleth
             Dim psDict As System.Collections.Generic.Dictionary(Of String, String) = _
               New System.Collections.Generic.Dictionary(Of String, String)
             ShibConfiguration.ResetConfig()
-            psDict = PortalController.GetPortalSettingsDictionary(portalID)
+            psDict = PortalController.GetPortalSettingsDictionary(PortalId)
 
             Dim strKeyName As String 'portal settings key field
             Dim strArray As Array
@@ -779,7 +779,7 @@ Namespace UF.Research.Authentication.Shibboleth
             Dim psDict As System.Collections.Generic.Dictionary(Of String, String) = _
               New System.Collections.Generic.Dictionary(Of String, String)
             ShibConfiguration.ResetConfig()
-            psDict = PortalController.GetPortalSettingsDictionary(portalID)
+            psDict = PortalController.GetPortalSettingsDictionary(PortalId)
 
             'Go thru loop once for each shib header item
             For i = 1 To psDict.Count
@@ -864,12 +864,13 @@ Namespace UF.Research.Authentication.Shibboleth
             Dim aliases As PortalAliasCollection = pac.GetPortalAliasByPortalID(portalId)
             Dim aliasKey As String = ""
             If Not aliases Is Nothing AndAlso aliases.Count > 0 Then
-                'get the first portal alias in the list and use that
+
+                Dim currentUrl = HttpContext.Current.Request.Url.AbsoluteUri
                 For Each key As String In aliases.Keys
-                    aliasKey = key
-                    portalAlias = aliases(key)
-                    Exit For
-                Next key
+                    If currentUrl.Contains(key) Then
+                        portalAlias = aliases(key)
+                    End If
+                Next
             End If
             'get the portal and copy across the settings
             Dim portal As PortalInfo = pc.GetPortal(portalId)

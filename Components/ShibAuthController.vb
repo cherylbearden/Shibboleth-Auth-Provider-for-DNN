@@ -182,11 +182,11 @@ Namespace UF.Research.Authentication.Shibboleth
             Dim intUserId As Integer
             Dim strPassword As String = ""
 
-            DotNetNuke.Services.Exceptions.Exceptions.LogException(New Exception(String.Format("username: {0}", UserName)))
             Try
-                If (UserName.Length > 0) And (objShibUser IsNot Nothing) Then
+                objShibUser = ProcessShibAuthentication(UserName)
 
-                    objShibUser = ProcessShibAuthentication(UserName)
+                If Not String.IsNullOrEmpty(UserName) AndAlso (UserName.Length > 0) And (objShibUser IsNot Nothing) Then
+
 
                     objShibUser.Username = UserName
                     objUser = DotNetNuke.Entities.Users.UserController.GetUserByName(_portalID, UserName)
