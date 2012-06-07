@@ -204,9 +204,6 @@
   <ItemGroup>
     <Content Include="Default.aspx" />
     <Content Include="hvDetail.ascx" />
-    <Content Include="libraries\DotNetNuke.dll" />
-    <Content Include="libraries\DotNetNuke.Membership.DataProvider.dll" />
-    <Content Include="libraries\Telerik.Web.UI.dll" />
     <Content Include="Login.ascx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
